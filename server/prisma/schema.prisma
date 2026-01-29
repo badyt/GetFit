@@ -1,0 +1,236 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ============ ENUMS ============
+
+enum UserRole {
+  TRAINER
+  TRAINEE
+  ADMIN
+}
+
+// ============ USER & TRAINER & TRAINEE & ADMIN ============
+
+model Admin {
+  id        String     @id @default(cuid())
+  name      String     @db.VarChar(255)
+  email     String     @unique @db.VarChar(255)
+  password  String     @db.Text
+  phone     String?    @db.VarChar(20)
+  role      UserRole   @default(ADMIN)
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+}
+
+model Trainer {
+  id        String     @id @default(cuid())
+  name      String     @db.VarChar(255)
+  email     String     @unique @db.VarChar(255)
+  password  String     @db.Text
+  phone     String?    @db.VarChar(20)
+  role      UserRole   @default(TRAINER)
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+
+  // Relations
+  trainees Trainee[]
+}
+
+model Trainee {
+  id        String     @id @default(cuid())
+  name      String     @db.VarChar(255)
+  email     String     @unique @db.VarChar(255)
+  password  String     @db.Text
+  phone     String?    @db.VarChar(20)
+  role      UserRole   @default(TRAINEE)
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+
+  // Relations
+  trainerId String?
+  trainer   Trainer?   @relation(fields: [trainerId], references: [id], onDelete: SetNull)
+
+  workoutPlan WorkoutPlan?
+  mealPlan    MealPlan?
+  dailyHistory DailyHistory[]
+
+  @@index([trainerId])
+}
+
+// ============ WORKOUT PLAN & WORKOUT DAYS ============
+
+model WorkoutPlan {
+  id        String     @id @default(cuid())
+  name      String     @db.VarChar(255)
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+
+  // Relations
+  traineeId String     @unique
+  trainee   Trainee    @relation(fields: [traineeId], references: [id], onDelete: Cascade)
+
+  workoutDays WorkoutDay[]
+
+  @@index([traineeId])
+}
+
+model WorkoutDay {
+  id        String     @id @default(cuid())
+  dayOfWeek Int        // 0 = Sunday, 1 = Monday, ... 6 = Saturday
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+
+  // Relations
+  workoutPlanId String
+  workoutPlan   WorkoutPlan @relation(fields: [workoutPlanId], references: [id], onDelete: Cascade)
+
+  exercises WorkoutDayExercise[]
+
+  @@unique([workoutPlanId, dayOfWeek])
+  @@index([workoutPlanId])
+}
+
+model WorkoutDayExercise {
+  id        String     @id @default(cuid())
+  sets      Int
+  reps      Int
+  weight    Float?     // in kg
+  restTime  Int?       // in seconds
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+
+  // Relations
+  workoutDayId String
+  workoutDay   WorkoutDay @relation(fields: [workoutDayId], references: [id], onDelete: Cascade)
+
+  exerciseId String
+  exercise   Exercise   @relation(fields: [exerciseId], references: [id], onDelete: Cascade)
+
+  @@index([workoutDayId])
+  @@index([exerciseId])
+}
+
+// ============ EXERCISE CATALOG & CATEGORY ============
+
+model ExerciseCategory {
+  id        String     @id @default(cuid())
+  name      String     @unique @db.VarChar(255)
+  description String?  @db.Text
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+
+  // Relations
+  exercises Exercise[]
+}
+
+model Exercise {
+  id        String     @id @default(cuid())
+  name      String     @db.VarChar(255)
+  description String?  @db.Text
+  image     String?    @db.VarChar(500) // image name/path
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+
+  // Relations
+  categoryId String
+  category   ExerciseCategory @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+
+  workoutDays WorkoutDayExercise[]
+
+  @@index([categoryId])
+}
+
+// ============ MEAL PLAN & MEAL DAYS ============
+
+model MealPlan {
+  id        String     @id @default(cuid())
+  name      String     @db.VarChar(255)
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+
+  // Relations
+  traineeId String     @unique
+  trainee   Trainee    @relation(fields: [traineeId], references: [id], onDelete: Cascade)
+
+  mealDays MealDay[]
+
+  @@index([traineeId])
+}
+
+model MealDay {
+  id        String     @id @default(cuid())
+  dayOfWeek Int        // 0 = Sunday, 1 = Monday, ... 6 = Saturday
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+
+  // Relations
+  mealPlanId String
+  mealPlan   MealPlan   @relation(fields: [mealPlanId], references: [id], onDelete: Cascade)
+
+  meals MealDayFood[]
+
+  @@unique([mealPlanId, dayOfWeek])
+  @@index([mealPlanId])
+}
+
+model MealDayFood {
+  id        String     @id @default(cuid())
+  quantity  Float      // in grams
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+
+  // Relations
+  mealDayId String
+  mealDay   MealDay    @relation(fields: [mealDayId], references: [id], onDelete: Cascade)
+
+  foodId    String
+  food      Food       @relation(fields: [foodId], references: [id], onDelete: Cascade)
+
+  @@index([mealDayId])
+  @@index([foodId])
+}
+
+// ============ FOOD CATALOG ============
+
+model Food {
+  id              String     @id @default(cuid())
+  name            String     @db.VarChar(255)
+  caloriesPer100g Float
+  proteinPer100g  Float
+  createdAt       DateTime   @default(now())
+  updatedAt       DateTime   @updatedAt
+
+  // Relations
+  mealDayFoods MealDayFood[]
+}
+
+// ============ DAILY HISTORY (MEASUREMENTS) ============
+
+model DailyHistory {
+  id              String     @id @default(cuid())
+  date            DateTime   @db.Date
+  weight          Float?     // in kg
+  calorieIntake   Float?     // in kcal
+  proteinIntake   Float?     // in grams
+  createdAt       DateTime   @default(now())
+  updatedAt       DateTime   @updatedAt
+
+  // Relations
+  traineeId       String
+  trainee         Trainee    @relation(fields: [traineeId], references: [id], onDelete: Cascade)
+
+  @@unique([traineeId, date])
+  @@index([traineeId])
+  @@index([date])
+}
