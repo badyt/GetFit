@@ -1,8 +1,7 @@
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
-const { PrismaClient } = require("@prisma/client");
 
-const prisma = new PrismaClient();
+const prisma = require("../../prisma/prisma");
 const JWT_SECRET = process.env.JWT_SECRET || "your_secret_key_change_this";
 
 // Hash password
@@ -21,54 +20,44 @@ function generateToken(id, role) {
   return jwt.sign({ id, role }, JWT_SECRET, { expiresIn: "7d" });
 }
 
-// Register user (only as TRAINEE by default)
-async function registerUser(name, email, password, phone = null) {
+// Register user (with optional role, defaults to TRAINEE)
+async function registerUser(name, email, password, phone = null, role = "TRAINEE") {
   try {
-    // Check if email already exists in any user table
-    const existingTrainee = await prisma.trainee.findUnique({
+    // Check if email already exists
+    const existingUser = await prisma.user.findUnique({
       where: { email },
     });
 
-    const existingTrainer = await prisma.trainer.findUnique({
-      where: { email },
-    });
-
-    const existingAdmin = await prisma.admin.findUnique({
-      where: { email },
-    });
-
-    if (existingTrainee || existingTrainer || existingAdmin) {
+    if (existingUser) {
       throw new Error("Email already registered");
     }
 
     // Hash password
     const hashedPassword = await hashPassword(password);
 
-    // Create trainee (no trainer assigned yet, only admin can assign)
-    const trainee = await prisma.trainee.create({
+    // Create user
+    const user = await prisma.user.create({
       data: {
         name,
         email,
         password: hashedPassword,
         phone,
-        role: "TRAINEE",
-        // trainerId is optional now, so trainee can register without a trainer
+        role,
       },
     });
 
     // Generate token
-    const token = generateToken(trainee.id, "TRAINEE");
+    const token = generateToken(user.id, user.role);
 
     return {
       success: true,
-      message:
-        "Trainee registered successfully. Awaiting trainer assignment from admin.",
+      message: "User registered successfully.",
       token,
       user: {
-        id: trainee.id,
-        name: trainee.name,
-        email: trainee.email,
-        role: "TRAINEE",
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
       },
     };
   } catch (error) {
@@ -76,34 +65,12 @@ async function registerUser(name, email, password, phone = null) {
   }
 }
 
-// Login user (role-based detection)
-async function loginUser(email, password, role) {
+// Login user (only by email and password)
+async function loginUser(email, password) {
   try {
-    if (!role || !["TRAINEE", "TRAINER", "ADMIN"].includes(role)) {
-      throw new Error(
-        "Invalid role. Please specify 'TRAINEE', 'TRAINER', or 'ADMIN'"
-      );
-    }
-
-    let user;
-    let userRole;
-
-    if (role === "TRAINEE") {
-      user = await prisma.trainee.findUnique({
-        where: { email },
-      });
-      userRole = "TRAINEE";
-    } else if (role === "TRAINER") {
-      user = await prisma.trainer.findUnique({
-        where: { email },
-      });
-      userRole = "TRAINER";
-    } else if (role === "ADMIN") {
-      user = await prisma.admin.findUnique({
-        where: { email },
-      });
-      userRole = "ADMIN";
-    }
+    const user = await prisma.user.findUnique({
+      where: { email },
+    });
 
     if (!user) {
       throw new Error("Invalid email or password");
@@ -117,7 +84,7 @@ async function loginUser(email, password, role) {
     }
 
     // Generate token
-    const token = generateToken(user.id, userRole);
+    const token = generateToken(user.id, user.role);
 
     return {
       success: true,
@@ -127,50 +94,8 @@ async function loginUser(email, password, role) {
         id: user.id,
         name: user.name,
         email: user.email,
-        role: userRole,
+        role: user.role,
       },
-    };
-  } catch (error) {
-    throw new Error(error.message);
-  }
-}
-
-// Admin assigns trainee to trainer (only callable by admin)
-async function assignTraineeToTrainer(traineeId, trainerId) {
-  try {
-    // Verify trainee exists
-    const trainee = await prisma.trainee.findUnique({
-      where: { id: traineeId },
-    });
-
-    if (!trainee) {
-      throw new Error("Trainee not found");
-    }
-
-    // Verify trainer exists
-    const trainer = await prisma.trainer.findUnique({
-      where: { id: trainerId },
-    });
-
-    if (!trainer) {
-      throw new Error("Trainer not found");
-    }
-
-    // Assign trainee to trainer
-    const updatedTrainee = await prisma.trainee.update({
-      where: { id: traineeId },
-      data: {
-        trainerId: trainerId,
-      },
-      include: {
-        trainer: true,
-      },
-    });
-
-    return {
-      success: true,
-      message: "Trainee assigned to trainer successfully",
-      trainee: updatedTrainee,
     };
   } catch (error) {
     throw new Error(error.message);
@@ -194,5 +119,4 @@ module.exports = {
   verifyToken,
   registerUser,
   loginUser,
-  assignTraineeToTrainer,
 };

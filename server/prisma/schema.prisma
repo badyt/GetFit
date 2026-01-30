@@ -20,34 +20,9 @@ enum UserRole {
   ADMIN
 }
 
-// ============ USER & TRAINER & TRAINEE & ADMIN ============
+// ============ USER ============
 
-model Admin {
-  id        String     @id @default(cuid())
-  name      String     @db.VarChar(255)
-  email     String     @unique @db.VarChar(255)
-  password  String     @db.Text
-  phone     String?    @db.VarChar(20)
-  role      UserRole   @default(ADMIN)
-  createdAt DateTime   @default(now())
-  updatedAt DateTime   @updatedAt
-}
-
-model Trainer {
-  id        String     @id @default(cuid())
-  name      String     @db.VarChar(255)
-  email     String     @unique @db.VarChar(255)
-  password  String     @db.Text
-  phone     String?    @db.VarChar(20)
-  role      UserRole   @default(TRAINER)
-  createdAt DateTime   @default(now())
-  updatedAt DateTime   @updatedAt
-
-  // Relations
-  trainees Trainee[]
-}
-
-model Trainee {
+model User {
   id        String     @id @default(cuid())
   name      String     @db.VarChar(255)
   email     String     @unique @db.VarChar(255)
@@ -57,10 +32,8 @@ model Trainee {
   createdAt DateTime   @default(now())
   updatedAt DateTime   @updatedAt
 
-  // Relations
-  trainerId String?
-  trainer   Trainer?   @relation(fields: [trainerId], references: [id], onDelete: SetNull)
-
+  // Relations (for trainee-specific data)
+  trainerId String?    // trainee's assigned trainer
   workoutPlan WorkoutPlan?
   mealPlan    MealPlan?
   dailyHistory DailyHistory[]
@@ -77,12 +50,12 @@ model WorkoutPlan {
   updatedAt DateTime   @updatedAt
 
   // Relations
-  traineeId String     @unique
-  trainee   Trainee    @relation(fields: [traineeId], references: [id], onDelete: Cascade)
+  userId String     @unique
+  user   User    @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   workoutDays WorkoutDay[]
 
-  @@index([traineeId])
+  @@index([userId])
 }
 
 model WorkoutDay {
@@ -160,12 +133,12 @@ model MealPlan {
   updatedAt DateTime   @updatedAt
 
   // Relations
-  traineeId String     @unique
-  trainee   Trainee    @relation(fields: [traineeId], references: [id], onDelete: Cascade)
+  userId String     @unique
+  user   User    @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   mealDays MealDay[]
 
-  @@index([traineeId])
+  @@index([userId])
 }
 
 model MealDay {
@@ -227,10 +200,10 @@ model DailyHistory {
   updatedAt       DateTime   @updatedAt
 
   // Relations
-  traineeId       String
-  trainee         Trainee    @relation(fields: [traineeId], references: [id], onDelete: Cascade)
+  userId       String
+  user         User    @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  @@unique([traineeId, date])
-  @@index([traineeId])
+  @@unique([userId, date])
+  @@index([userId])
   @@index([date])
 }
