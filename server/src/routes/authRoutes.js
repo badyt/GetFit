@@ -50,4 +50,20 @@ router.post("/login", async (req, res) => {
   }
 });
 
+// Validate token endpoint
+router.get("/validate", authenticateToken, (req, res) => {
+  try {
+    return res.status(200).json({
+      success: true,
+      message: "Token is valid",
+      user: req.user,
+    });
+  } catch (error) {
+    return res.status(401).json({
+      success: false,
+      message: "Token validation failed",
+    });
+  }
+});
+
 module.exports = router;

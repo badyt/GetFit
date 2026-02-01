@@ -24,6 +24,7 @@ function generateToken(id, role) {
 async function registerUser(name, email, password, phone = null, role = "TRAINEE") {
   try {
     // Check if email already exists
+    console.log(prisma);
     const existingUser = await prisma.user.findUnique({
       where: { email },
     });

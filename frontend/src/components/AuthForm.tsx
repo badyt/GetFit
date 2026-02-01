@@ -49,24 +49,24 @@ export default function AuthForm({ mode, onSuccess }: Props) {
       {mode === "register" && (
         <View style={styles.fieldGroup}>
           <Text style={styles.label}>Full Name</Text>
-          <TextInput placeholder="John Doe" value={name} onChangeText={setName} style={styles.input} />
+          <TextInput placeholder="" value={name} onChangeText={setName} style={styles.input} />
         </View>
       )}
 
       <View style={styles.fieldGroup}>
         <Text style={styles.label}>Email Address</Text>
-        <TextInput placeholder="your@email.com" value={email} onChangeText={setEmail} style={styles.input} keyboardType="email-address" autoCapitalize="none" />
+        <TextInput placeholder="" value={email} onChangeText={setEmail} style={styles.input} keyboardType="email-address" autoCapitalize="none" />
       </View>
 
       <View style={styles.fieldGroup}>
         <Text style={styles.label}>Password</Text>
-        <TextInput placeholder="••••••••" value={password} onChangeText={setPassword} secureTextEntry style={styles.input} />
+        <TextInput placeholder="" value={password} onChangeText={setPassword} secureTextEntry style={styles.input} />
       </View>
 
       {mode === "register" && (
         <View style={styles.fieldGroup}>
           <Text style={styles.label}>Phone <Text style={styles.optional}>(optional)</Text></Text>
-          <TextInput placeholder="(555) 123-4567" value={phone} onChangeText={setPhone} style={styles.input} keyboardType="phone-pad" />
+          <TextInput placeholder="" value={phone} onChangeText={setPhone} style={styles.input} keyboardType="phone-pad" />
         </View>
       )}
 

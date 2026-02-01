@@ -14,11 +14,13 @@ type AuthState = {
   token: string | null;
   user: User | null;
   isAuthenticated: boolean;
+  isHydrated: boolean;
   login: (email: string, password: string, role: string) => Promise<any>;
   register: (name: string, email: string, password: string, phone?: string) => Promise<any>;
   logout: () => void;
   setToken: (token: string | null) => void;
   setUser: (user: User | null) => void;
+  validateToken: () => Promise<void>;
 };
 
 export const useAuthStore = create<AuthState>()(
@@ -27,6 +29,7 @@ export const useAuthStore = create<AuthState>()(
       token: null,
       user: null,
       isAuthenticated: false,
+      isHydrated: false,
 
       setToken: (token) => set(() => ({ token, isAuthenticated: !!token })),
       setUser: (user) => set(() => ({ user })),
@@ -91,10 +94,41 @@ export const useAuthStore = create<AuthState>()(
       },
 
       logout: () => set(() => ({ token: null, user: null, isAuthenticated: false })),
+
+      validateToken: async () => {
+        const { token } = get();
+        if (!token) {
+          set(() => ({ isAuthenticated: false }));
+          return;
+        }
+        try {
+          const controller = new AbortController();
+          const timeoutId = setTimeout(() => controller.abort(), 5000);
+
+          const res = await fetch(`${AUTH_URL}/validate`, {
+            method: "GET",
+            headers: { "Authorization": `Bearer ${token}` },
+            signal: controller.signal,
+          });
+
+          clearTimeout(timeoutId);
+
+          if (!res.ok) {
+            set(() => ({ token: null, user: null, isAuthenticated: false }));
+          }
+        } catch (error) {
+          set(() => ({ token: null, user: null, isAuthenticated: false }));
+        }
+      },
     }),
     {
       name: "getfit-auth",
       storage: createJSONStorage(() => AsyncStorage),
+      onRehydrateStorage: () => (state) => {
+        if (state) {
+          state.isHydrated = true;
+        }
+      },
     }
   )
 );
