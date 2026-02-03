@@ -114,7 +114,7 @@ async function sendWelcomeEmail(email, name) {
 /**
  * Send trainer invite notification
  */
-async function sendTrainerInviteEmail(email, trainerName, inviteCode) {
+async function sendTrainerInviteEmail(email, trainerName, inviteCode, message) {
   try {
     const transporter = createTransporter();
 
@@ -128,6 +128,13 @@ async function sendTrainerInviteEmail(email, trainerName, inviteCode) {
           <p style="color: #6b7280; font-size: 16px;">
             <strong>${trainerName}</strong> has invited you to be their trainee on GetFit.
           </p>
+          ${message ? `
+          <div style="margin: 20px 0; background: #f0fdf4; padding: 16px; border-radius: 8px; border-left: 4px solid #10b981;">
+            <p style="color: #065f46; font-size: 15px; margin: 0; font-style: italic;">
+              "${message}"
+            </p>
+          </div>
+          ` : ''}
           <p style="color: #6b7280; font-size: 16px;">
             Use this invite code to join:
           </p>

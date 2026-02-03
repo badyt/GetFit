@@ -73,11 +73,7 @@ router.get("/me", authenticateToken, async (req, res) => {
     const user = await prisma.user.findUnique({
       where: { id: req.user.id },
       include: {
-        trainee: {
-          include: {
-            trainer: true,
-          },
-        },
+        trainer: true, // Get trainer info if user is a trainee
       },
     });
 
@@ -88,7 +84,7 @@ router.get("/me", authenticateToken, async (req, res) => {
       });
     }
 
-    // Prepare user response with trainer info if trainee
+    // Prepare user response
     const userResponse = {
       id: user.id,
       name: user.name,
@@ -96,14 +92,13 @@ router.get("/me", authenticateToken, async (req, res) => {
       role: user.role,
     };
 
-    if (user.role === "TRAINEE" && user.trainee) {
-      userResponse.trainerId = user.trainee.trainerId;
-      if (user.trainee.trainer) {
-        userResponse.trainer = {
-          id: user.trainee.trainer.id,
-          name: user.trainee.trainer.name,
-        };
-      }
+    // Add trainer info if user has a trainer (is a trainee)
+    if (user.trainerId && user.trainer) {
+      userResponse.trainerId = user.trainerId;
+      userResponse.trainer = {
+        id: user.trainer.id,
+        name: user.trainer.name,
+      };
     }
 
     return res.status(200).json({

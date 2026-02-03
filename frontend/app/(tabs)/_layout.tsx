@@ -26,6 +26,15 @@ export default function TabsLayout() {
       }}
     >
       <Tabs.Screen name="home" options={{ title: "Home" }} />
+      <Tabs.Screen name="catalog" options={{ title: "Catalog" }} />
+      <Tabs.Screen
+        name="plans"
+        options={{
+          title: "Plans",
+          tabBarStyle: { display: isTrainee ? "flex" : "none" },
+          href: isTrainee ? undefined : null,
+        }}
+      />
       <Tabs.Screen
         name="invite"
         options={{

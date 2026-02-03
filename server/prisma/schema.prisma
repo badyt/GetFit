@@ -52,6 +52,7 @@ model WorkoutPlan {
 model WorkoutDay {
   id            String               @id @default(cuid())
   dayOfWeek     Int
+  description   String?              @db.VarChar(255)
   createdAt     DateTime             @default(now())
   updatedAt     DateTime             @updatedAt
   workoutPlanId String
@@ -128,14 +129,15 @@ model MealDay {
 }
 
 model MealDayFood {
-  id        String   @id @default(cuid())
-  quantity  Float
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  mealDayId String
-  foodId    String
-  food      Food     @relation(fields: [foodId], references: [id], onDelete: Cascade)
-  mealDay   MealDay  @relation(fields: [mealDayId], references: [id], onDelete: Cascade)
+  id          String   @id @default(cuid())
+  quantity    Float
+  description String?  @db.VarChar(255)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  mealDayId   String
+  foodId      String
+  food        Food     @relation(fields: [foodId], references: [id], onDelete: Cascade)
+  mealDay     MealDay  @relation(fields: [mealDayId], references: [id], onDelete: Cascade)
 
   @@index([mealDayId])
   @@index([foodId])
@@ -146,6 +148,7 @@ model Food {
   name            String        @db.VarChar(255)
   caloriesPer100g Float
   proteinPer100g  Float
+  image           String?       @db.VarChar(500)
   createdAt       DateTime      @default(now())
   updatedAt       DateTime      @updatedAt
   mealDayFoods    MealDayFood[]

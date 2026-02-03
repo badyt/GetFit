@@ -59,8 +59,6 @@
     { "name": "Close Grip Bench Press", "image": "close-grip-bench-press.jpg", "description": "cool exercise to be done every day of the week", "category": "Triceps Exercises" },
     { "name": "Overhead Tricep Extension", "image": "overhead-tricep-extension.jpg", "description": "cool exercise to be done every day of the week", "category": "Triceps Exercises" },
     { "name": "Kickbacks", "image": "tricep-kickbacks.jpg", "description": "cool exercise to be done every day of the week", "category": "Triceps Exercises" },
-    { "name": "Dumbbell Tricep Extension", "image": "dumbbell-tricep-extension.jpg", "description": "cool exercise to be done every day of the week", "category": "Triceps Exercises" },
-    { "name": "Rope Pushdown", "image": "rope-pushdown.jpg", "description": "cool exercise to be done every day of the week", "category": "Triceps Exercises" },
     { "name": "Diamond Push Ups", "image": "diamond-push-ups.jpg", "description": "cool exercise to be done every day of the week", "category": "Triceps Exercises" },
 
     { "name": "Crunches", "image": "crunches.jpg", "description": "cool exercise to be done every day of the week", "category": "Abs Exercises" },
@@ -68,7 +66,6 @@
     { "name": "Russian Twists", "image": "russian-twists.jpg", "description": "cool exercise to be done every day of the week", "category": "Abs Exercises" },
     { "name": "Mountain Climbers", "image": "mountain-climbers.jpg", "description": "cool exercise to be done every day of the week", "category": "Abs Exercises" },
     { "name": "Hanging Leg Raise", "image": "hanging-leg-raise.jpg", "description": "cool exercise to be done every day of the week", "category": "Abs Exercises" },
-    { "name": "Ab Rollout", "image": "ab-rollout.jpg", "description": "cool exercise to be done every day of the week", "category": "Abs Exercises" },
     { "name": "Flutter Kicks", "image": "flutter-kicks.jpg", "description": "cool exercise to be done every day of the week", "category": "Abs Exercises" },
 
     { "name": "Hip Thrust", "image": "hip-thrust.jpg", "description": "cool exercise to be done every day of the week", "category": "Glutes Exercises" },
@@ -84,7 +81,6 @@
     { "name": "Deadlift", "image": "deadlift.jpg", "description": "cool exercise to be done every day of the week", "category": "Hamstrings Exercises" },
     { "name": "Romanian Deadlift", "image": "romanian-deadlift.jpg", "description": "cool exercise to be done every day of the week", "category": "Hamstrings Exercises" },
     { "name": "Leg Curl", "image": "leg-curl.jpg", "description": "cool exercise to be done every day of the week", "category": "Hamstrings Exercises" },
-    { "name": "Good Morning", "image": "good-morning.jpg", "description": "cool exercise to be done every day of the week", "category": "Hamstrings Exercises" },
     { "name": "Glute Bridge", "image": "glute-bridge.jpg", "description": "cool exercise to be done every day of the week", "category": "Hamstrings Exercises" },
     { "name": "Hip Thrust", "image": "hip-thrust.jpg", "description": "cool exercise to be done every day of the week", "category": "Hamstrings Exercises" },
     { "name": "Single Leg Deadlift", "image": "single-leg-deadlift.jpg", "description": "cool exercise to be done every day of the week", "category": "Hamstrings Exercises" },
@@ -99,12 +95,8 @@
     { "name": "Step Ups", "image": "step-ups.jpg", "description": "cool exercise to be done every day of the week", "category": "Quadriceps Exercises" },
     { "name": "Hack Squat", "image": "hack-squat.jpg", "description": "cool exercise to be done every day of the week", "category": "Quadriceps Exercises" },
     { "name": "Front Squat", "image": "front-squat.jpg", "description": "cool exercise to be done every day of the week", "category": "Quadriceps Exercises" },
-    { "name": "Goblet Squat", "image": "goblet-squat.jpg", "description": "cool exercise to be done every day of the week", "category": "Quadriceps Exercises" },
 
     { "name": "Calf Raise", "image": "calf-raise.jpg", "description": "cool exercise to be done every day of the week", "category": "Calves Exercises" },
-    { "name": "Seated Calf Raise", "image": "seated-calf-raise.jpg", "description": "cool exercise to be done every day of the week", "category": "Calves Exercises" },
-    { "name": "Donkey Calf Raise", "image": "donkey-calf-raise.jpg", "description": "cool exercise to be done every day of the week", "category": "Calves Exercises" },
-    { "name": "Single Leg Calf Raise", "image": "single-leg-calf-raise.jpg", "description": "cool exercise to be done every day of the week", "category": "Calves Exercises" },
-    { "name": "Sled Press Calf Raise", "image": "sled-press-calf-raise.jpg", "description": "cool exercise to be done every day of the week", "category": "Calves Exercises" }
+    { "name": "Seated Calf Raise", "image": "seated-calf-raise.jpg", "description": "cool exercise to be done every day of the week", "category": "Calves Exercises" }
   ]
 }

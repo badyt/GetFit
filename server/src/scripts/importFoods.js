@@ -37,6 +37,7 @@ async function main() {
           data: {
             caloriesPer100g: f.caloriesPer100g ?? existing.caloriesPer100g,
             proteinPer100g: f.proteinPer100g ?? existing.proteinPer100g,
+            image: f.image ?? existing.image,
           },
         });
         updated++;
@@ -46,6 +47,7 @@ async function main() {
             name,
             caloriesPer100g: f.caloriesPer100g ?? 0,
             proteinPer100g: f.proteinPer100g ?? 0,
+            image: f.image ?? null,
           },
         });
         created++;

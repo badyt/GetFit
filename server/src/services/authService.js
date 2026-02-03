@@ -90,11 +90,7 @@ async function loginUser(email, password) {
     const user = await prisma.user.findUnique({
       where: { email },
       include: {
-        trainee: {
-          include: {
-            trainer: true,
-          },
-        },
+        trainer: true, // Get trainer info if user is a trainee
       },
     });
 
@@ -112,7 +108,7 @@ async function loginUser(email, password) {
     // Generate token
     const token = generateToken(user.id, user.role);
 
-    // Prepare user response with trainer info if trainee
+    // Prepare user response
     const userResponse = {
       id: user.id,
       name: user.name,
@@ -120,14 +116,13 @@ async function loginUser(email, password) {
       role: user.role,
     };
 
-    if (user.role === "TRAINEE" && user.trainee) {
-      userResponse.trainerId = user.trainee.trainerId;
-      if (user.trainee.trainer) {
-        userResponse.trainer = {
-          id: user.trainee.trainer.id,
-          name: user.trainee.trainer.name,
-        };
-      }
+    // Add trainer info if user has a trainer (is a trainee)
+    if (user.trainerId && user.trainer) {
+      userResponse.trainerId = user.trainerId;
+      userResponse.trainer = {
+        id: user.trainer.id,
+        name: user.trainer.name,
+      };
     }
 
     return {

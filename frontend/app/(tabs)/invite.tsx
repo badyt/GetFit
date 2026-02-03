@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { View, Text, TextInput, Pressable, StyleSheet, ActivityIndicator } from "react-native";
-import * as Clipboard from "expo-clipboard";
 import useAuthStore from "../../src/store/useAuthStore";
 import { BASE_URL } from "../../src/constants/api";
 
@@ -9,18 +8,16 @@ export default function Invite() {
   const role = useAuthStore((s) => s.user?.role);
   const [email, setEmail] = useState("");
   const [message, setMessage] = useState("");
-  const [code, setCode] = useState<string | null>(null);
-  const [expiresAt, setExpiresAt] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [copied, setCopied] = useState(false);
+  const [success, setSuccess] = useState<string | null>(null);
 
-  const handleGenerate = async () => {
+  const handleSendInvite = async () => {
     setError(null);
-    setCopied(false);
+    setSuccess(null);
 
     if (role !== "TRAINER") {
-      setError("Only trainers can generate invites.");
+      setError("Only trainers can send invites.");
       return;
     }
 
@@ -47,11 +44,12 @@ export default function Invite() {
 
       const data = await res.json();
       if (!res.ok || !data.success) {
-        throw new Error(data.message || "Failed to generate invite");
+        throw new Error(data.message || "Failed to send invite");
       }
 
-      setCode(data.code);
-      setExpiresAt(data.expiresAt);
+      setSuccess(data.message || `Invite sent to ${email.trim()}`);
+      setEmail("");
+      setMessage("");
     } catch (err: any) {
       setError(err.message || "Something went wrong");
     } finally {
@@ -59,56 +57,40 @@ export default function Invite() {
     }
   };
 
-  const handleCopy = async () => {
-    if (!code) return;
-    await Clipboard.setStringAsync(code);
-    setCopied(true);
-  };
-
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Invite Code</Text>
-      <Text style={styles.subtitle}>Generate a code for a trainee to join you.</Text>
+      <Text style={styles.title}>Invite Trainee</Text>
+      <Text style={styles.subtitle}>Send an invite code directly to your trainee's email.</Text>
 
       <View style={styles.card}>
         <Text style={styles.label}>Trainee Email</Text>
         <TextInput
           style={styles.input}
-          placeholder="name@email.com"
+          placeholder="trainee@email.com"
           value={email}
           onChangeText={setEmail}
           autoCapitalize="none"
           keyboardType="email-address"
+          editable={!loading}
         />
 
         <Text style={styles.label}>Message (optional)</Text>
         <TextInput
           style={[styles.input, styles.textArea]}
-          placeholder="Add a short note..."
+          placeholder="Add a note for your trainee..."
           value={message}
           onChangeText={setMessage}
           multiline
+          editable={!loading}
         />
 
         {error ? <Text style={styles.error}>{error}</Text> : null}
+        {success ? <Text style={styles.success}>{success}</Text> : null}
 
-        <Pressable style={styles.primaryButton} onPress={handleGenerate} disabled={loading}>
-          {loading ? <ActivityIndicator color="#fff" /> : <Text style={styles.primaryText}>Generate Code</Text>}
+        <Pressable style={styles.primaryButton} onPress={handleSendInvite} disabled={loading}>
+          {loading ? <ActivityIndicator color="#fff" /> : <Text style={styles.primaryText}>Send Invite</Text>}
         </Pressable>
       </View>
-
-      {code ? (
-        <View style={styles.card}>
-          <Text style={styles.label}>Invite Code</Text>
-          <View style={styles.codeBox}>
-            <Text style={styles.code}>{code}</Text>
-          </View>
-          {expiresAt ? <Text style={styles.meta}>Expires: {new Date(expiresAt).toLocaleString()}</Text> : null}
-          <Pressable style={styles.secondaryButton} onPress={handleCopy}>
-            <Text style={styles.secondaryText}>{copied ? "Copied" : "Copy Code"}</Text>
-          </Pressable>
-        </View>
-      ) : null}
     </View>
   );
 }
@@ -171,38 +153,13 @@ const styles = StyleSheet.create({
     color: "#fff",
     fontWeight: "600",
   },
-  secondaryButton: {
-    height: 44,
-    borderRadius: 10,
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: "#f3f4f6",
-    marginTop: 12,
-  },
-  secondaryText: {
-    color: "#111827",
-    fontWeight: "600",
-  },
-  codeBox: {
-    borderWidth: 1,
-    borderColor: "#e5e7eb",
-    backgroundColor: "#f9fafb",
-    borderRadius: 10,
-    padding: 12,
-  },
-  code: {
-    fontSize: 16,
-    fontWeight: "700",
-    letterSpacing: 1,
-    color: "#111827",
-  },
-  meta: {
-    marginTop: 8,
-    color: "#6b7280",
-    fontSize: 12,
-  },
   error: {
     color: "#b00020",
     marginBottom: 10,
+  },
+  success: {
+    color: "#065f46",
+    marginBottom: 10,
+    fontWeight: "600",
   },
 });

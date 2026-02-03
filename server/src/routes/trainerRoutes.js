@@ -1,6 +1,7 @@
 const express = require("express");
 const prisma = require("../../prisma/prisma");
 const { authenticateToken, isTrainer, isTrainee } = require("../middleware/authMiddleware");
+const { sendTrainerInviteEmail } = require("../services/emailService");
 
 const router = express.Router();
 
@@ -21,6 +22,13 @@ router.post("/trainer/invites", authenticateToken, isTrainer, async (req, res) =
     const days = Number.isFinite(Number(expiresInDays)) ? Number(expiresInDays) : 7;
     expiresAt.setDate(expiresAt.getDate() + Math.max(1, days));
 
+    // Get trainer info
+    const trainer = await prisma.user.findUnique({
+      where: { id: req.user.id },
+      select: { name: true },
+    });
+
+    // Check for existing pending invite
     const existingInvite = await prisma.trainerInvite.findFirst({
       where: {
         trainerId: req.user.id,
@@ -32,13 +40,25 @@ router.post("/trainer/invites", authenticateToken, isTrainer, async (req, res) =
     });
 
     if (existingInvite) {
+      // Resend email with existing code
+      try {
+        await sendTrainerInviteEmail(normalizedEmail, trainer.name, existingInvite.inviteCode, message);
+      } catch (emailError) {
+        console.error("Failed to resend invite email:", emailError);
+        return res.status(500).json({
+          success: false,
+          message: "Failed to send invite email. Please try again.",
+        });
+      }
+
       return res.status(200).json({
         success: true,
-        code: existingInvite.inviteCode,
+        message: `Invite code sent to ${normalizedEmail}`,
         expiresAt: existingInvite.expiresAt,
       });
     }
 
+    // Create new invite
     const invite = await prisma.trainerInvite.create({
       data: {
         trainerId: req.user.id,
@@ -49,9 +69,24 @@ router.post("/trainer/invites", authenticateToken, isTrainer, async (req, res) =
       select: { inviteCode: true, expiresAt: true },
     });
 
+    // Send invite email to trainee
+    try {
+      await sendTrainerInviteEmail(normalizedEmail, trainer.name, invite.inviteCode, message);
+    } catch (emailError) {
+      console.error("Failed to send invite email:", emailError);
+      // Delete the invite since email failed
+      await prisma.trainerInvite.delete({
+        where: { inviteCode: invite.inviteCode },
+      });
+      return res.status(500).json({
+        success: false,
+        message: "Failed to send invite email. Please check the email address and try again.",
+      });
+    }
+
     return res.status(201).json({
       success: true,
-      code: invite.inviteCode,
+      message: `Invite code sent to ${normalizedEmail}`,
       expiresAt: invite.expiresAt,
     });
   } catch (error) {
