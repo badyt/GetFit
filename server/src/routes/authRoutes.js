@@ -1,6 +1,7 @@
 const express = require("express");
-const { registerUser, loginUser } = require("../services/authService");
+const { registerUser, loginUser, verifyEmailToken } = require("../services/authService");
 const { authenticateToken, isAdmin } = require("../middleware/authMiddleware");
+const prisma = require("../../prisma/prisma");
 
 const router = express.Router();
 
@@ -62,6 +63,80 @@ router.get("/validate", authenticateToken, (req, res) => {
     return res.status(401).json({
       success: false,
       message: "Token validation failed",
+    });
+  }
+});
+
+// Get current user endpoint
+router.get("/me", authenticateToken, async (req, res) => {
+  try {
+    const user = await prisma.user.findUnique({
+      where: { id: req.user.id },
+      include: {
+        trainee: {
+          include: {
+            trainer: true,
+          },
+        },
+      },
+    });
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found",
+      });
+    }
+
+    // Prepare user response with trainer info if trainee
+    const userResponse = {
+      id: user.id,
+      name: user.name,
+      email: user.email,
+      role: user.role,
+    };
+
+    if (user.role === "TRAINEE" && user.trainee) {
+      userResponse.trainerId = user.trainee.trainerId;
+      if (user.trainee.trainer) {
+        userResponse.trainer = {
+          id: user.trainee.trainer.id,
+          name: user.trainee.trainer.name,
+        };
+      }
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: "User retrieved successfully",
+      user: userResponse,
+    });
+  } catch (error) {
+    return res.status(401).json({
+      success: false,
+      message: "Failed to retrieve user",
+    });
+  }
+});
+
+// Verify email endpoint
+router.post("/verify-email", async (req, res) => {
+  try {
+    const { token } = req.body;
+
+    if (!token) {
+      return res.status(400).json({
+        success: false,
+        message: "Verification token is required",
+      });
+    }
+
+    const result = await verifyEmailToken(token);
+    return res.status(200).json(result);
+  } catch (error) {
+    return res.status(400).json({
+      success: false,
+      message: error.message,
     });
   }
 });

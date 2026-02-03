@@ -42,14 +42,6 @@ export default function TabsLayout() {
           href: isTrainer ? undefined : null,
         }}
       />
-      <Tabs.Screen
-        name="join"
-        options={{
-          title: "Join",
-          tabBarStyle: { display: isTrainee ? "flex" : "none" },
-          href: isTrainee ? undefined : null,
-        }}
-      />
       <Tabs.Screen name="profile" options={{ title: "Profile" }} />
     </Tabs>
   );

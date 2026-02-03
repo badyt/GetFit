@@ -2,6 +2,8 @@ const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
 
 const prisma = require("../../prisma/prisma");
+const { generateVerificationToken, sendVerificationEmail, sendWelcomeEmail, VERIFICATION_EMAIL_EXPIRY } = require("./emailService");
+
 const JWT_SECRET = process.env.JWT_SECRET || "your_secret_key_change_this";
 
 // Hash password
@@ -24,7 +26,6 @@ function generateToken(id, role) {
 async function registerUser(name, email, password, phone = null, role = "TRAINEE") {
   try {
     // Check if email already exists
-    console.log(prisma);
     const existingUser = await prisma.user.findUnique({
       where: { email },
     });
@@ -36,7 +37,11 @@ async function registerUser(name, email, password, phone = null, role = "TRAINEE
     // Hash password
     const hashedPassword = await hashPassword(password);
 
-    // Create user
+    // Generate verification token
+    const verificationToken = generateVerificationToken();
+    const verificationExpires = new Date(Date.now() + VERIFICATION_EMAIL_EXPIRY);
+
+    // Create user with verification token
     const user = await prisma.user.create({
       data: {
         name,
@@ -44,21 +49,34 @@ async function registerUser(name, email, password, phone = null, role = "TRAINEE
         password: hashedPassword,
         phone,
         role,
+        emailVerificationToken: verificationToken,
+        emailVerificationExpires: verificationExpires,
       },
     });
+
+    // Send verification email
+    const verificationLink = `${process.env.APP_URL || "http://localhost:3000"}/verify-email?token=${verificationToken}`;
+    
+    try {
+      await sendVerificationEmail(email, name, verificationToken, verificationLink);
+    } catch (emailError) {
+      console.error("Failed to send verification email:", emailError);
+      // Don't fail registration if email fails, just log it
+    }
 
     // Generate token
     const token = generateToken(user.id, user.role);
 
     return {
       success: true,
-      message: "User registered successfully.",
+      message: "User registered successfully. Please check your email to verify your account.",
       token,
       user: {
         id: user.id,
         name: user.name,
         email: user.email,
         role: user.role,
+        isEmailVerified: user.isEmailVerified,
       },
     };
   } catch (error) {
@@ -71,6 +89,13 @@ async function loginUser(email, password) {
   try {
     const user = await prisma.user.findUnique({
       where: { email },
+      include: {
+        trainee: {
+          include: {
+            trainer: true,
+          },
+        },
+      },
     });
 
     if (!user) {
@@ -87,16 +112,29 @@ async function loginUser(email, password) {
     // Generate token
     const token = generateToken(user.id, user.role);
 
+    // Prepare user response with trainer info if trainee
+    const userResponse = {
+      id: user.id,
+      name: user.name,
+      email: user.email,
+      role: user.role,
+    };
+
+    if (user.role === "TRAINEE" && user.trainee) {
+      userResponse.trainerId = user.trainee.trainerId;
+      if (user.trainee.trainer) {
+        userResponse.trainer = {
+          id: user.trainee.trainer.id,
+          name: user.trainee.trainer.name,
+        };
+      }
+    }
+
     return {
       success: true,
       message: "Login successful",
       token,
-      user: {
-        id: user.id,
-        name: user.name,
-        email: user.email,
-        role: user.role,
-      },
+      user: userResponse,
     };
   } catch (error) {
     throw new Error(error.message);
@@ -113,6 +151,55 @@ function verifyToken(token) {
   }
 }
 
+// Verify email using verification token
+async function verifyEmailToken(verificationToken) {
+  try {
+    const user = await prisma.user.findUnique({
+      where: { emailVerificationToken: verificationToken },
+    });
+
+    if (!user) {
+      throw new Error("Invalid verification token");
+    }
+
+    // Check if token has expired
+    if (user.emailVerificationExpires && user.emailVerificationExpires < new Date()) {
+      throw new Error("Verification token has expired");
+    }
+
+    // Mark email as verified
+    const updatedUser = await prisma.user.update({
+      where: { id: user.id },
+      data: {
+        isEmailVerified: true,
+        emailVerificationToken: null,
+        emailVerificationExpires: null,
+      },
+    });
+
+    // Send welcome email
+    try {
+      await sendWelcomeEmail(updatedUser.email, updatedUser.name);
+    } catch (emailError) {
+      console.error("Failed to send welcome email:", emailError);
+    }
+
+    return {
+      success: true,
+      message: "Email verified successfully",
+      user: {
+        id: updatedUser.id,
+        name: updatedUser.name,
+        email: updatedUser.email,
+        role: updatedUser.role,
+        isEmailVerified: updatedUser.isEmailVerified,
+      },
+    };
+  } catch (error) {
+    throw new Error(error.message);
+  }
+}
+
 module.exports = {
   hashPassword,
   comparePassword,
@@ -120,4 +207,5 @@ module.exports = {
   verifyToken,
   registerUser,
   loginUser,
+  verifyEmailToken,
 };

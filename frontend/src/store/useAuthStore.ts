@@ -8,6 +8,12 @@ type User = {
   name: string;
   email: string;
   role: string;
+  isEmailVerified?: boolean;
+  trainerId?: string | null;
+  trainer?: {
+    id: string;
+    name: string;
+  } | null;
 };
 
 type AuthState = {
@@ -20,6 +26,7 @@ type AuthState = {
   logout: () => void;
   setToken: (token: string | null) => void;
   setUser: (user: User | null) => void;
+  refreshUser: () => Promise<void>;
   validateToken: () => Promise<void>;
 };
 
@@ -83,7 +90,9 @@ export const useAuthStore = create<AuthState>()(
             throw new Error(data.message || "Registration failed");
           }
 
-          set(() => ({ token: data.token, user: data.user, isAuthenticated: true }));
+          // Don't auto-login if email is not verified
+          // User must verify email first
+          set(() => ({ token: null, user: null, isAuthenticated: false }));
           return data;
         } catch (error: any) {
           if (error.name === 'AbortError') {
@@ -94,6 +103,34 @@ export const useAuthStore = create<AuthState>()(
       },
 
       logout: () => set(() => ({ token: null, user: null, isAuthenticated: false })),
+
+      refreshUser: async () => {
+        const { token, user } = get();
+        if (!token || !user) {
+          return;
+        }
+        try {
+          const controller = new AbortController();
+          const timeoutId = setTimeout(() => controller.abort(), 5000);
+
+          const res = await fetch(`${AUTH_URL}/me`, {
+            method: "GET",
+            headers: { "Authorization": `Bearer ${token}` },
+            signal: controller.signal,
+          });
+
+          clearTimeout(timeoutId);
+
+          if (res.ok) {
+            const data = await res.json();
+            if (data.user) {
+              set(() => ({ user: data.user }));
+            }
+          }
+        } catch (error) {
+          // Silently fail on refresh
+        }
+      },
 
       validateToken: async () => {
         const { token } = get();

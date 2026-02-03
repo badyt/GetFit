@@ -7,14 +7,17 @@ datasource db {
 }
 
 model User {
-  id           String         @id @default(cuid())
-  name         String         @db.VarChar(255)
-  email        String         @unique @db.VarChar(255)
-  password     String
-  phone        String?        @db.VarChar(20)
-  role         UserRole       @default(TRAINEE)
-  createdAt    DateTime       @default(now())
-  updatedAt    DateTime       @updatedAt
+  id                    String         @id @default(cuid())
+  name                  String         @db.VarChar(255)
+  email                 String         @unique @db.VarChar(255)
+  password              String
+  phone                 String?        @db.VarChar(20)
+  role                  UserRole       @default(TRAINEE)
+  isEmailVerified       Boolean        @default(false)
+  emailVerificationToken String?       @unique
+  emailVerificationExpires DateTime?
+  createdAt             DateTime       @default(now())
+  updatedAt             DateTime       @updatedAt
   
   // One-to-Many: Each trainee has one trainer, each trainer has many trainees
   trainerId    String?
