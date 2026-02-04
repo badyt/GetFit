@@ -131,6 +131,7 @@ model MealDay {
 model MealDayFood {
   id          String   @id @default(cuid())
   quantity    Float
+  mealTime    String   @db.VarChar(5)
   description String?  @db.VarChar(255)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt

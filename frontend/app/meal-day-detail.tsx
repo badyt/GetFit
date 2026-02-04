@@ -10,6 +10,7 @@ const DAYS = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"
 type Meal = {
   id: string;
   quantity: number;
+  mealTime: string;
   description: string | null;
   food: {
     id: string;
@@ -75,23 +76,30 @@ export default function MealDayDetail() {
     };
   };
 
-  const groupMealsByDescription = () => {
+  const groupMealsByTime = () => {
     if (!mealDay || !mealDay.meals) return [];
 
     const grouped: { [key: string]: Meal[] } = {};
     
     mealDay.meals.forEach((meal) => {
-      const key = meal.description || "Meals";
+      const key = meal.mealTime || "No time";
       if (!grouped[key]) {
         grouped[key] = [];
       }
       grouped[key].push(meal);
     });
 
-    return Object.entries(grouped).map(([description, meals]) => ({
-      description,
-      meals,
-    }));
+    // Sort groups by time (HH:MM format)
+    return Object.entries(grouped)
+      .sort(([timeA], [timeB]) => {
+        if (timeA === "No time") return 1;
+        if (timeB === "No time") return -1;
+        return timeA.localeCompare(timeB);
+      })
+      .map(([mealTime, meals]) => ({
+        mealTime,
+        meals,
+      }));
   };
 
   if (loading) {
@@ -104,7 +112,7 @@ export default function MealDayDetail() {
   }
 
   const totals = getTotalNutrition();
-  const groupedMeals = groupMealsByDescription();
+  const groupedMeals = groupMealsByTime();
 
   return (
     <View style={styles.container}>
@@ -139,7 +147,7 @@ export default function MealDayDetail() {
           <View style={styles.mealsContainer}>
             {groupedMeals.map((group, groupIndex) => (
               <View key={groupIndex} style={styles.mealGroup}>
-                <Text style={styles.mealGroupTitle}>{group.description}</Text>
+                <Text style={styles.mealGroupTitle}>🕒 {group.mealTime}</Text>
                 {group.meals.map((meal) => {
                   const calories = Math.round((meal.food.caloriesPer100g * meal.quantity) / 100);
                   const protein = Math.round((meal.food.proteinPer100g * meal.quantity) * 10) / 10;
@@ -160,6 +168,12 @@ export default function MealDayDetail() {
                           <Text style={styles.nutritionText}>{calories} kcal</Text>
                           <Text style={styles.nutritionDot}>•</Text>
                           <Text style={styles.nutritionText}>{protein}g protein</Text>
+                          {meal.description && (
+                            <>
+                              <Text style={styles.nutritionDot}>•</Text>
+                              <Text style={styles.mealDescription}>{meal.description}</Text>
+                            </>
+                          )}
                         </View>
                       </View>
                     </View>
@@ -285,6 +299,11 @@ const styles = StyleSheet.create({
     fontWeight: "600",
     color: "#111827",
     marginBottom: 4,
+  },
+  mealDescription: {
+    fontSize: 12,
+    color: "#6366f1",
+    fontStyle: "italic",
   },
   quantity: {
     fontSize: 14,

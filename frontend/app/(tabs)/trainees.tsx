@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { View, Text, Pressable, StyleSheet, ActivityIndicator, ScrollView } from "react-native";
+import { useRouter } from "expo-router";
 import useAuthStore from "../../src/store/useAuthStore";
 import { BASE_URL } from "../../src/constants/api";
 
@@ -12,6 +13,7 @@ type Trainee = {
 };
 
 export default function Trainees() {
+  const router = useRouter();
   const token = useAuthStore((s) => s.token);
   const role = useAuthStore((s) => s.user?.role);
   const [trainees, setTrainees] = useState<Trainee[]>([]);
@@ -82,12 +84,36 @@ export default function Trainees() {
 
       <ScrollView contentContainerStyle={styles.list}>
         {trainees.map((t) => (
-          <View key={t.id} style={styles.card}>
-            <Text style={styles.name}>{t.name}</Text>
-            <Text style={styles.meta}>{t.email}</Text>
-            {t.phone ? <Text style={styles.meta}>{t.phone}</Text> : null}
-            <Text style={styles.meta}>Joined: {new Date(t.createdAt).toLocaleDateString()}</Text>
-          </View>
+          <Pressable
+            key={t.id}
+            style={styles.card}
+            onPress={() => router.push(`/trainee-detail?id=${t.id}&name=${encodeURIComponent(t.name)}`)}
+          >
+            <View style={styles.cardHeader}>
+              <View style={styles.avatar}>
+                <Text style={styles.avatarText}>{t.name.charAt(0).toUpperCase()}</Text>
+              </View>
+              <View style={styles.cardInfo}>
+                <Text style={styles.name}>{t.name}</Text>
+                <Text style={styles.email}>{t.email}</Text>
+              </View>
+              <Text style={styles.arrowIcon}>→</Text>
+            </View>
+            <View style={styles.cardFooter}>
+              {t.phone && (
+                <View style={styles.infoItem}>
+                  <Text style={styles.infoIcon}>📱</Text>
+                  <Text style={styles.infoText}>{t.phone}</Text>
+                </View>
+              )}
+              <View style={styles.infoItem}>
+                <Text style={styles.infoIcon}>📅</Text>
+                <Text style={styles.infoText}>
+                  Joined {new Date(t.createdAt).toLocaleDateString()}
+                </Text>
+              </View>
+            </View>
+          </Pressable>
         ))}
       </ScrollView>
     </View>
@@ -140,14 +166,58 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.06,
     shadowRadius: 8,
     elevation: 2,
+    borderWidth: 1,
+    borderColor: "#e5e7eb",
+  },
+  cardHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 12,
+  },
+  avatar: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    backgroundColor: "#6366f1",
+    alignItems: "center",
+    justifyContent: "center",
+    marginRight: 12,
+  },
+  avatarText: {
+    color: "#fff",
+    fontSize: 20,
+    fontWeight: "700",
+  },
+  cardInfo: {
+    flex: 1,
   },
   name: {
-    fontSize: 16,
+    fontSize: 18,
     fontWeight: "700",
     color: "#111827",
+    marginBottom: 2,
   },
-  meta: {
-    marginTop: 4,
+  email: {
+    fontSize: 14,
+    color: "#6b7280",
+  },
+  arrowIcon: {
+    fontSize: 20,
+    color: "#6366f1",
+  },
+  cardFooter: {
+    gap: 8,
+  },
+  infoItem: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+  },
+  infoIcon: {
+    fontSize: 14,
+  },
+  infoText: {
+    fontSize: 13,
     color: "#6b7280",
   },
   error: {
