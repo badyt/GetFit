@@ -77,6 +77,7 @@ async function registerUser(name, email, password, phone = null, role = "TRAINEE
         email: user.email,
         role: user.role,
         isEmailVerified: user.isEmailVerified,
+        profilePicture: user.profilePicture,
       },
     };
   } catch (error) {
@@ -114,6 +115,7 @@ async function loginUser(email, password) {
       name: user.name,
       email: user.email,
       role: user.role,
+      profilePicture: user.profilePicture,
     };
 
     // Add trainer info if user has a trainer (is a trainee)

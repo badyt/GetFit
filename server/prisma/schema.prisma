@@ -13,6 +13,7 @@ model User {
   password              String
   phone                 String?        @db.VarChar(20)
   role                  UserRole       @default(TRAINEE)
+  profilePicture        String?        @db.VarChar(500)
   isEmailVerified       Boolean        @default(false)
   emailVerificationToken String?       @unique
   emailVerificationExpires DateTime?

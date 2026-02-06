@@ -9,10 +9,13 @@ type User = {
   email: string;
   role: string;
   isEmailVerified?: boolean;
+  profilePicture?: string | null;
+  createdAt?: string;
   trainerId?: string | null;
   trainer?: {
     id: string;
     name: string;
+    profilePicture?: string | null;
   } | null;
 };
 

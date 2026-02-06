@@ -1,11 +1,11 @@
-import { View, Text, Pressable, StyleSheet, ScrollView, ActivityIndicator } from "react-native";
+import { View, Text, Pressable, StyleSheet, ScrollView, ActivityIndicator, Image } from "react-native";
 import { useRouter, useLocalSearchParams } from "expo-router";
 import { useEffect, useState } from "react";
 import useAuthStore from "../src/store/useAuthStore";
 import usePlanStore from "../src/store/usePlanStore";
 import ConfirmDialog from "../src/components/ConfirmDialog";
 import CustomAlert from "../src/components/CustomAlert";
-import { BASE_URL } from "../src/constants/api";
+import { BASE_URL, SERVER_BASE } from "../src/constants/api";
 
 type PlanSummary = {
   mealPlan: {
@@ -22,9 +22,10 @@ type PlanSummary = {
 
 export default function TraineeDetail() {
   const router = useRouter();
-  const { id, name } = useLocalSearchParams();
+  const { id, name, profilePicture } = useLocalSearchParams();
   const traineeId = id as string;
   const traineeName = decodeURIComponent(name as string);
+  const traineeProfilePicture = profilePicture ? decodeURIComponent(profilePicture as string) : null;
   const token = useAuthStore((s) => s.token);
   const setMealPlanName = usePlanStore((s) => s.setMealPlanName);
   const setMealDays = usePlanStore((s) => s.setMealDays);
@@ -224,9 +225,16 @@ export default function TraineeDetail() {
           <Text style={styles.backArrow}>←</Text>
         </Pressable>
         <View style={styles.traineeHeader}>
-          <View style={styles.avatar}>
-            <Text style={styles.avatarText}>{traineeName.charAt(0).toUpperCase()}</Text>
-          </View>
+          {traineeProfilePicture ? (
+            <Image
+              source={{ uri: `${SERVER_BASE}${traineeProfilePicture}` }}
+              style={styles.avatarImage}
+            />
+          ) : (
+            <View style={styles.avatar}>
+              <Text style={styles.avatarText}>{traineeName.charAt(0).toUpperCase()}</Text>
+            </View>
+          )}
           <View>
             <Text style={styles.title}>{traineeName}</Text>
             <Text style={styles.subtitle}>Manage Plans</Text>
@@ -341,6 +349,30 @@ export default function TraineeDetail() {
               )}
             </View>
           </View>
+
+          {/* Progress History Card */}
+          <View style={styles.planCard}>
+            <View style={styles.planHeader}>
+              <Text style={styles.planIcon}>📊</Text>
+              <View style={styles.planHeaderInfo}>
+                <Text style={styles.planTitle}>Progress History</Text>
+                <Text style={styles.planSubtitle}>View measurements & tracking</Text>
+              </View>
+            </View>
+            
+            <View style={styles.buttonRow}>
+              <Pressable
+                style={[styles.actionButton, styles.createButton]}
+                onPress={() => {
+                  router.push(
+                    `/trainee-history?traineeId=${traineeId}&traineeName=${encodeURIComponent(traineeName)}`
+                  );
+                }}
+              >
+                <Text style={styles.createButtonText}>📈 View Progress</Text>
+              </Pressable>
+            </View>
+          </View>
         </View>
       </ScrollView>
 
@@ -412,6 +444,11 @@ const styles = StyleSheet.create({
     backgroundColor: "#6366f1",
     alignItems: "center",
     justifyContent: "center",
+  },
+  avatarImage: {
+    width: 56,
+    height: 56,
+    borderRadius: 28,
   },
   avatarText: {
     color: "#fff",

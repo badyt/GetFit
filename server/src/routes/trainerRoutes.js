@@ -179,7 +179,7 @@ router.get("/trainer/trainees", authenticateToken, isTrainer, async (req, res) =
   try {
     const trainees = await prisma.user.findMany({
       where: { trainerId: req.user.id, role: "TRAINEE" },
-      select: { id: true, name: true, email: true, phone: true, createdAt: true },
+      select: { id: true, name: true, email: true, phone: true, createdAt: true, profilePicture: true },
       orderBy: { createdAt: "desc" },
     });
 

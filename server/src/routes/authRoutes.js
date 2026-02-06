@@ -90,6 +90,9 @@ router.get("/me", authenticateToken, async (req, res) => {
       name: user.name,
       email: user.email,
       role: user.role,
+      profilePicture: user.profilePicture,
+      createdAt: user.createdAt,
+      isEmailVerified: user.isEmailVerified,
     };
 
     // Add trainer info if user has a trainer (is a trainee)
@@ -98,6 +101,7 @@ router.get("/me", authenticateToken, async (req, res) => {
       userResponse.trainer = {
         id: user.trainer.id,
         name: user.trainer.name,
+        profilePicture: user.trainer.profilePicture,
       };
     }
 

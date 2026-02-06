@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
-import { View, Text, Pressable, StyleSheet, ActivityIndicator, ScrollView } from "react-native";
+import { View, Text, Pressable, StyleSheet, ActivityIndicator, ScrollView, Image } from "react-native";
 import { useRouter } from "expo-router";
 import useAuthStore from "../../src/store/useAuthStore";
-import { BASE_URL } from "../../src/constants/api";
+import { BASE_URL, SERVER_BASE } from "../../src/constants/api";
 
 type Trainee = {
   id: string;
@@ -10,6 +10,7 @@ type Trainee = {
   email: string;
   phone?: string | null;
   createdAt: string;
+  profilePicture?: string | null;
 };
 
 export default function Trainees() {
@@ -87,12 +88,19 @@ export default function Trainees() {
           <Pressable
             key={t.id}
             style={styles.card}
-            onPress={() => router.push(`/trainee-detail?id=${t.id}&name=${encodeURIComponent(t.name)}`)}
+            onPress={() => router.push(`/trainee-detail?id=${t.id}&name=${encodeURIComponent(t.name)}&profilePicture=${encodeURIComponent(t.profilePicture || '')}`)}
           >
             <View style={styles.cardHeader}>
-              <View style={styles.avatar}>
-                <Text style={styles.avatarText}>{t.name.charAt(0).toUpperCase()}</Text>
-              </View>
+              {t.profilePicture ? (
+                <Image
+                  source={{ uri: `${SERVER_BASE}${t.profilePicture}` }}
+                  style={styles.avatarImage}
+                />
+              ) : (
+                <View style={styles.avatar}>
+                  <Text style={styles.avatarText}>{t.name.charAt(0).toUpperCase()}</Text>
+                </View>
+              )}
               <View style={styles.cardInfo}>
                 <Text style={styles.name}>{t.name}</Text>
                 <Text style={styles.email}>{t.email}</Text>
@@ -181,6 +189,12 @@ const styles = StyleSheet.create({
     backgroundColor: "#6366f1",
     alignItems: "center",
     justifyContent: "center",
+    marginRight: 12,
+  },
+  avatarImage: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
     marginRight: 12,
   },
   avatarText: {
