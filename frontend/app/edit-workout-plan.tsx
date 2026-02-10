@@ -167,7 +167,7 @@ export default function EditWorkoutPlan() {
     // Reset the ref to allow adding a new exercise
     lastProcessedExerciseId.current = null;
     router.push(
-      `/select-exercise?dayIndex=${dayIndex}&traineeId=${traineeId}&traineeName=${traineeName}&returnTo=create-workout-plan`
+      `/select-exercise?dayIndex=${dayIndex}&traineeId=${traineeId}&traineeName=${traineeName}&returnTo=edit-workout-plan`
     );
   };
   const savePendingExercise = () => {

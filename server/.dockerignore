@@ -1,0 +1,45 @@
+# Dependencies
+node_modules
+npm-debug.log
+yarn-error.log
+
+# Environment files
+.env
+.env.local
+.env.*.local
+
+# IDE
+.vscode
+.idea
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Git
+.git
+.gitignore
+.gitattributes
+
+# Documentation
+README.md
+*.md
+
+# Uploads (will be volume mounted)
+uploads/*
+!uploads/.gitkeep
+
+# Development
+nodemon.json
+.eslintrc
+.prettierrc
+
+# Testing
+test
+tests
+*.test.js
+*.spec.js
+coverage

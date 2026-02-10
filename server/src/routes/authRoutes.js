@@ -1,5 +1,5 @@
 const express = require("express");
-const { registerUser, loginUser, verifyEmailToken } = require("../services/authService");
+const { registerUser, loginUser, verifyEmailToken, resendVerificationCode, verifyCodeAndLogin } = require("../services/authService");
 const { authenticateToken, isAdmin } = require("../middleware/authMiddleware");
 const prisma = require("../../prisma/prisma");
 
@@ -44,6 +44,33 @@ router.post("/login", async (req, res) => {
     const result = await loginUser(email, password);
     return res.status(200).json(result);
   } catch (error) {
+    // Handle different error codes
+    if (error.code === "USER_NOT_FOUND") {
+      return res.status(404).json({
+        success: false,
+        code: "USER_NOT_FOUND",
+        message: error.message,
+      });
+    }
+
+    if (error.code === "INVALID_PASSWORD") {
+      return res.status(401).json({
+        success: false,
+        code: "INVALID_PASSWORD",
+        message: error.message,
+      });
+    }
+
+    if (error.code === "EMAIL_NOT_VERIFIED") {
+      return res.status(403).json({
+        success: false,
+        code: "EMAIL_NOT_VERIFIED",
+        message: error.message,
+        email: error.email,
+        name: error.name,
+      });
+    }
+
     return res.status(401).json({
       success: false,
       message: error.message,
@@ -52,12 +79,36 @@ router.post("/login", async (req, res) => {
 });
 
 // Validate token endpoint
-router.get("/validate", authenticateToken, (req, res) => {
+router.get("/validate", authenticateToken, async (req, res) => {
   try {
+    // Fetch full user data from database
+    const user = await prisma.user.findUnique({
+      where: { id: req.user.id },
+      include: {
+        trainer: {
+          select: {
+            id: true,
+            name: true,
+            profilePicture: true,
+          },
+        },
+      },
+    });
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found",
+      });
+    }
+
+    // Return user without password
+    const { password: _, ...userWithoutPassword } = user;
+
     return res.status(200).json({
       success: true,
       message: "Token is valid",
-      user: req.user,
+      user: userWithoutPassword,
     });
   } catch (error) {
     return res.status(401).json({
@@ -138,6 +189,55 @@ router.post("/verify-email", async (req, res) => {
       message: error.message,
     });
   }
+});
+
+// Resend verification code endpoint
+router.post("/resend-verification", async (req, res) => {
+  try {
+    const { email } = req.body;
+
+    if (!email) {
+      return res.status(400).json({
+        success: false,
+        message: "Email is required",
+      });
+    }
+
+    const result = await resendVerificationCode(email);
+    return res.status(200).json(result);
+  } catch (error) {
+    return res.status(400).json({
+      success: false,
+      message: error.message,
+    });
+  }
+});
+
+// Verify code and login endpoint
+router.post("/verify-code-login", async (req, res) => {
+  try {
+    const { email, code } = req.body;
+
+    if (!email || !code) {
+      return res.status(400).json({
+        success: false,
+        message: "Email and verification code are required",
+      });
+    }
+
+    const result = await verifyCodeAndLogin(email, code);
+    return res.status(200).json(result);
+  } catch (error) {
+    return res.status(400).json({
+      success: false,
+      message: error.message,
+    });
+  }
+});
+
+// Health check endpoint for Docker
+router.get("/health", (req, res) => {
+  res.status(200).json({ status: "ok", timestamp: new Date().toISOString() });
 });
 
 module.exports = router;

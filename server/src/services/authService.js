@@ -96,14 +96,28 @@ async function loginUser(email, password) {
     });
 
     if (!user) {
-      throw new Error("Invalid email or password");
+      const error = new Error("No user found with this email");
+      error.code = "USER_NOT_FOUND";
+      throw error;
     }
 
     // Compare password
     const isPasswordValid = await comparePassword(password, user.password);
 
     if (!isPasswordValid) {
-      throw new Error("Invalid email or password");
+      const error = new Error("Incorrect password");
+      error.code = "INVALID_PASSWORD";
+      throw error;
+    }
+
+    // Check if email is verified
+    if (!user.isEmailVerified) {
+      const error = new Error("Email not verified. Please verify your email to login.");
+      error.code = "EMAIL_NOT_VERIFIED";
+      error.userId = user.id;
+      error.email = user.email;
+      error.name = user.name;
+      throw error;
     }
 
     // Generate token
@@ -134,7 +148,7 @@ async function loginUser(email, password) {
       user: userResponse,
     };
   } catch (error) {
-    throw new Error(error.message);
+    throw error;
   }
 }
 
@@ -197,6 +211,126 @@ async function verifyEmailToken(verificationToken) {
   }
 }
 
+// Resend verification code
+async function resendVerificationCode(email) {
+  try {
+    const user = await prisma.user.findUnique({
+      where: { email },
+    });
+
+    if (!user) {
+      throw new Error("User not found");
+    }
+
+    if (user.isEmailVerified) {
+      throw new Error("Email is already verified");
+    }
+
+    // Generate new verification token
+    const verificationToken = generateVerificationToken();
+    const verificationExpires = new Date(Date.now() + VERIFICATION_EMAIL_EXPIRY);
+
+    // Update user with new token
+    await prisma.user.update({
+      where: { id: user.id },
+      data: {
+        emailVerificationToken: verificationToken,
+        emailVerificationExpires: verificationExpires,
+      },
+    });
+
+    // Send verification email
+    const verificationLink = `${process.env.APP_URL || "http://localhost:3000"}/verify-email?token=${verificationToken}`;
+    
+    try {
+      await sendVerificationEmail(email, user.name, verificationToken, verificationLink);
+    } catch (emailError) {
+      console.error("Failed to send verification email:", emailError);
+      throw new Error("Failed to send verification email");
+    }
+
+    return {
+      success: true,
+      message: "Verification code sent successfully. Please check your email.",
+    };
+  } catch (error) {
+    throw new Error(error.message);
+  }
+}
+
+// Verify code and complete login
+async function verifyCodeAndLogin(email, verificationToken) {
+  try {
+    const user = await prisma.user.findUnique({
+      where: { email },
+      include: {
+        trainer: true,
+      },
+    });
+
+    if (!user) {
+      throw new Error("User not found");
+    }
+
+    // Check if token matches
+    if (user.emailVerificationToken !== verificationToken) {
+      throw new Error("Invalid verification code");
+    }
+
+    // Check if token has expired
+    if (user.emailVerificationExpires && user.emailVerificationExpires < new Date()) {
+      throw new Error("Verification code has expired. Please request a new one.");
+    }
+
+    // Mark email as verified
+    const updatedUser = await prisma.user.update({
+      where: { id: user.id },
+      data: {
+        isEmailVerified: true,
+        emailVerificationToken: null,
+        emailVerificationExpires: null,
+      },
+    });
+
+    // Send welcome email
+    try {
+      await sendWelcomeEmail(updatedUser.email, updatedUser.name);
+    } catch (emailError) {
+      console.error("Failed to send welcome email:", emailError);
+    }
+
+    // Generate token
+    const token = generateToken(updatedUser.id, updatedUser.role);
+
+    // Prepare user response
+    const userResponse = {
+      id: updatedUser.id,
+      name: updatedUser.name,
+      email: updatedUser.email,
+      role: updatedUser.role,
+      profilePicture: updatedUser.profilePicture,
+    };
+
+    // Add trainer info if user has a trainer
+    if (updatedUser.trainerId && user.trainer) {
+      userResponse.trainerId = updatedUser.trainerId;
+      userResponse.trainer = {
+        id: user.trainer.id,
+        name: user.trainer.name,
+      };
+    }
+
+    return {
+      success: true,
+      message: "Email verified and login successful",
+      token,
+      user: userResponse,
+    };
+  } catch (error) {
+    throw new Error(error.message);
+  }
+}
+
 module.exports = {
   hashPassword,
   comparePassword,
@@ -205,4 +339,6 @@ module.exports = {
   registerUser,
   loginUser,
   verifyEmailToken,
+  resendVerificationCode,
+  verifyCodeAndLogin,
 };
