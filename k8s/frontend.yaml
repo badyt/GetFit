@@ -1,0 +1,77 @@
+# ---------------------------------------------------
+# Service: ClusterIP for the frontend (nginx)
+# ---------------------------------------------------
+apiVersion: v1
+kind: Service
+metadata:
+  name: frontend
+  namespace: getfit
+  labels:
+    app: frontend
+    app.kubernetes.io/part-of: getfit
+spec:
+  type: ClusterIP
+  selector:
+    app: frontend
+  ports:
+    - port: 80
+      targetPort: 80
+      protocol: TCP
+
+---
+# ---------------------------------------------------
+# Deployment: frontend (Expo web → nginx)
+# ---------------------------------------------------
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: frontend
+  namespace: getfit
+  labels:
+    app: frontend
+    app.kubernetes.io/part-of: getfit
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: frontend
+  template:
+    metadata:
+      labels:
+        app: frontend
+    spec:
+      containers:
+        - name: frontend
+          image: getfit-frontend:latest
+          imagePullPolicy: Never
+          ports:
+            - containerPort: 80
+          env:
+            # The entrypoint script sed-replaces the baked-in API_URL
+            # inside the JS bundles at container start
+            - name: API_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: getfit-config
+                  key: API_URL
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 80
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            timeoutSeconds: 3
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 80
+            initialDelaySeconds: 10
+            periodSeconds: 30
+            timeoutSeconds: 3
+          resources:
+            requests:
+              memory: "64Mi"
+              cpu: "50m"
+            limits:
+              memory: "256Mi"
+              cpu: "250m"

@@ -1,0 +1,61 @@
+# ---------------------------------------------------
+# Ingress: expose the app via getfit.local
+#
+# Prerequisites (minikube):
+#   minikube addons enable ingress
+#
+# Add to your hosts file (C:\Windows\System32\drivers\etc\hosts):
+#   <minikube-ip>  getfit.local
+#
+# Get minikube IP:
+#   minikube ip
+# ---------------------------------------------------
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: getfit-ingress
+  namespace: getfit
+  labels:
+    app.kubernetes.io/part-of: getfit
+  annotations:
+    nginx.ingress.kubernetes.io/use-regex: "true"
+    # Increase body size limit for file uploads (profile pictures)
+    nginx.ingress.kubernetes.io/proxy-body-size: "10m"
+spec:
+  ingressClassName: nginx
+  rules:
+    - host: getfit.local
+      http:
+        paths:
+          # Backend API — all /api/* requests
+          - path: /api
+            pathType: Prefix
+            backend:
+              service:
+                name: backend
+                port:
+                  number: 3000
+          # Backend static assets — exercise/food images served by Express
+          - path: /images
+            pathType: Prefix
+            backend:
+              service:
+                name: backend
+                port:
+                  number: 3000
+          # Backend uploads — profile pictures
+          - path: /uploads
+            pathType: Prefix
+            backend:
+              service:
+                name: backend
+                port:
+                  number: 3000
+          # Everything else → frontend SPA
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: frontend
+                port:
+                  number: 80

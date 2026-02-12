@@ -1,0 +1,150 @@
+# ---------------------------------------------------
+# PVC for uploaded files (profile pictures, etc.)
+# ---------------------------------------------------
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: backend-uploads-pvc
+  namespace: getfit
+  labels:
+    app: backend
+    app.kubernetes.io/part-of: getfit
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+
+---
+# ---------------------------------------------------
+# Service: ClusterIP for the backend
+# ---------------------------------------------------
+apiVersion: v1
+kind: Service
+metadata:
+  name: backend
+  namespace: getfit
+  labels:
+    app: backend
+    app.kubernetes.io/part-of: getfit
+spec:
+  type: ClusterIP
+  selector:
+    app: backend
+  ports:
+    - port: 3000
+      targetPort: 3000
+      protocol: TCP
+
+---
+# ---------------------------------------------------
+# Deployment: backend (Node.js + Prisma)
+# ---------------------------------------------------
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: backend
+  namespace: getfit
+  labels:
+    app: backend
+    app.kubernetes.io/part-of: getfit
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: backend
+  template:
+    metadata:
+      labels:
+        app: backend
+    spec:
+      # Wait for PostgreSQL before the main container starts
+      initContainers:
+        - name: wait-for-db
+          image: postgres:16-alpine
+          command:
+            - sh
+            - -c
+            - |
+              until pg_isready -h database -p 5432 -U postgres; do
+                echo "Waiting for database to be ready..."
+                sleep 2
+              done
+              echo "Database is ready!"
+      containers:
+        - name: backend
+          image: getfit-server:latest
+          # "Never" — we build images inside minikube's Docker daemon,
+          # so K8s must not try to pull from a remote registry
+          imagePullPolicy: Never
+          ports:
+            - containerPort: 3000
+          env:
+            - name: NODE_ENV
+              valueFrom:
+                configMapKeyRef:
+                  name: getfit-config
+                  key: NODE_ENV
+            - name: PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: getfit-config
+                  key: PORT
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: getfit-secrets
+                  key: DATABASE_URL
+            - name: JWT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: getfit-secrets
+                  key: JWT_SECRET
+            - name: APP_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: getfit-config
+                  key: APP_URL
+            - name: EMAIL_USER
+              valueFrom:
+                secretKeyRef:
+                  name: getfit-secrets
+                  key: EMAIL_USER
+            - name: EMAIL_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: getfit-secrets
+                  key: EMAIL_PASSWORD
+          readinessProbe:
+            httpGet:
+              path: /api/auth/health
+              port: 3000
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            timeoutSeconds: 5
+          livenessProbe:
+            httpGet:
+              path: /api/auth/health
+              port: 3000
+            initialDelaySeconds: 30
+            periodSeconds: 30
+            timeoutSeconds: 5
+          resources:
+            requests:
+              memory: "128Mi"
+              cpu: "100m"
+            limits:
+              memory: "512Mi"
+              cpu: "500m"
+          volumeMounts:
+            - name: uploads
+              mountPath: /app/uploads
+            # NOTE: The frontend/assets/images mount is not included here.
+            # In Docker Compose this was a host bind-mount. In K8s we need
+            # a different strategy (bake into image, shared PVC, or initContainer).
+            # We'll address the image-loading question separately.
+      volumes:
+        - name: uploads
+          persistentVolumeClaim:
+            claimName: backend-uploads-pvc

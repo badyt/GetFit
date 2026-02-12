@@ -23,6 +23,9 @@ Thumbs.db
 *.sql
 *.dump
 
+# Kubernetes secrets (real credentials)
+k8s/secrets.yaml
+
 # Temporary files
 *.tmp
 *.temp
