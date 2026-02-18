@@ -43,17 +43,9 @@ spec:
       containers:
         - name: frontend
           image: getfit-frontend:latest
-          imagePullPolicy: Never
+          imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 80
-          env:
-            # The entrypoint script sed-replaces the baked-in API_URL
-            # inside the JS bundles at container start
-            - name: API_URL
-              valueFrom:
-                configMapKeyRef:
-                  name: getfit-config
-                  key: API_URL
           readinessProbe:
             httpGet:
               path: /health
@@ -71,7 +63,7 @@ spec:
           resources:
             requests:
               memory: "64Mi"
-              cpu: "50m"
+              cpu: "25m"
             limits:
               memory: "256Mi"
               cpu: "250m"

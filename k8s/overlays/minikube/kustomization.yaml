@@ -1,0 +1,53 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+resources:
+  - ../../base
+  - secrets.yaml
+
+patches:
+  # -------------------------------------------------------
+  # Override imagePullPolicy to Never for minikube
+  # (images are built inside minikube's Docker daemon)
+  # -------------------------------------------------------
+  - target:
+      kind: Deployment
+      name: backend
+      namespace: getfit
+    patch: |-
+      - op: replace
+        path: /spec/template/spec/containers/0/imagePullPolicy
+        value: Never
+  - target:
+      kind: Deployment
+      name: frontend
+      namespace: getfit
+    patch: |-
+      - op: replace
+        path: /spec/template/spec/containers/0/imagePullPolicy
+        value: Never
+  - target:
+      kind: Job
+      name: prisma-migrate
+      namespace: getfit
+    patch: |-
+      - op: replace
+        path: /spec/template/spec/containers/0/imagePullPolicy
+        value: Never
+  # -------------------------------------------------------
+  # Ingress: add host for local access via getfit.local
+  # -------------------------------------------------------
+  - target:
+      kind: Ingress
+      name: getfit-ingress
+      namespace: getfit
+    patch: |-
+      - op: add
+        path: /spec/rules/0/host
+        value: "getfit.local"
+      - op: add
+        path: /spec/ingressClassName
+        value: "nginx"
+      - op: add
+        path: /metadata/annotations/nginx.ingress.kubernetes.io~1use-regex
+        value: "true"

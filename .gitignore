@@ -25,6 +25,7 @@ Thumbs.db
 
 # Kubernetes secrets (real credentials)
 k8s/secrets.yaml
+k8s/overlays/*/secrets.yaml
 
 # Temporary files
 *.tmp

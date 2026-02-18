@@ -75,9 +75,7 @@ spec:
       containers:
         - name: backend
           image: getfit-server:latest
-          # "Never" — we build images inside minikube's Docker daemon,
-          # so K8s must not try to pull from a remote registry
-          imagePullPolicy: Never
+          imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 3000
           env:
@@ -101,11 +99,6 @@ spec:
                 secretKeyRef:
                   name: getfit-secrets
                   key: JWT_SECRET
-            - name: APP_URL
-              valueFrom:
-                configMapKeyRef:
-                  name: getfit-config
-                  key: APP_URL
             - name: EMAIL_USER
               valueFrom:
                 secretKeyRef:
@@ -133,17 +126,13 @@ spec:
           resources:
             requests:
               memory: "128Mi"
-              cpu: "100m"
+              cpu: "50m"
             limits:
               memory: "512Mi"
               cpu: "500m"
           volumeMounts:
             - name: uploads
               mountPath: /app/uploads
-            # NOTE: The frontend/assets/images mount is not included here.
-            # In Docker Compose this was a host bind-mount. In K8s we need
-            # a different strategy (bake into image, shared PVC, or initContainer).
-            # We'll address the image-loading question separately.
       volumes:
         - name: uploads
           persistentVolumeClaim:

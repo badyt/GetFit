@@ -1,0 +1,84 @@
+# ---------------------------------------------------
+# Job: Seed database with food/exercise data
+#
+# Apply AFTER prisma-migrate completes:
+#   kubectl apply -f k8s/seed-job.yaml
+#
+# Watch progress:
+#   kubectl logs -n getfit job/db-seed -f
+#
+# Re-run if needed:
+#   kubectl delete job db-seed -n getfit
+#   kubectl apply -f k8s/seed-job.yaml
+# ---------------------------------------------------
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: db-seed
+  namespace: getfit
+  labels:
+    app: backend
+    app.kubernetes.io/part-of: getfit
+    app.kubernetes.io/component: seed
+spec:
+  backoffLimit: 3
+  activeDeadlineSeconds: 180
+  template:
+    metadata:
+      labels:
+        app: backend
+        component: seed
+    spec:
+      # Wait for migrations to complete before seeding
+      initContainers:
+        - name: wait-for-migrations
+          image: postgres:16-alpine
+          command:
+            - sh
+            - -c
+            - |
+              echo "Waiting for database to be ready..."
+              until pg_isready -h database -p 5432 -U postgres; do
+                sleep 2
+              done
+              
+              echo "Waiting for migrations to complete..."
+              until psql "$DATABASE_URL" -c "SELECT 1 FROM \"User\" LIMIT 1;" 2>/dev/null; do
+                echo "Tables not ready yet, waiting for migrations..."
+                sleep 3
+              done
+              
+              echo "Database migrations complete — starting seed."
+          env:
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: getfit-secrets
+                  key: DATABASE_URL
+      containers:
+        - name: seed
+          image: getfit-server:latest
+          imagePullPolicy: IfNotPresent
+          command:
+            - sh
+            - -c
+            - |
+              echo "Importing food data..."
+              node src/scripts/importFoods.js
+              echo "Importing exercise data..."
+              node src/scripts/importExercises.js
+              echo "Seed complete."
+          env:
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: getfit-secrets
+                  key: DATABASE_URL
+          resources:
+            requests:
+              cpu: 50m
+              memory: 128Mi
+            limits:
+              cpu: 200m
+              memory: 256Mi
+      restartPolicy: OnFailure

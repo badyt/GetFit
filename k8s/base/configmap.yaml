@@ -10,6 +10,3 @@ data:
   PORT: "3000"
   POSTGRES_DB: "getfit"
   POSTGRES_USER: "postgres"
-  # These URLs should match your ingress host
-  APP_URL: "http://getfit.local"
-  API_URL: "http://getfit.local/api"

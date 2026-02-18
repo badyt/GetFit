@@ -22,8 +22,10 @@ COPY --from=deps /app/node_modules ./node_modules
 # Copy application files
 COPY . .
 
-# Set environment variable for API URL (will be overridden at runtime)
-ARG API_URL=http://localhost:3000/api
+# API_URL is intentionally empty by default.
+# For Kubernetes: leave unset — the frontend uses relative "/api" via ingress.
+# For Docker Compose: pass --build-arg API_URL=http://localhost:3000/api
+ARG API_URL=
 ENV API_URL=${API_URL}
 
 # Export for web

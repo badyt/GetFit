@@ -11,6 +11,9 @@ const createTransporter = () => {
       user: process.env.EMAIL_USER,
       pass: process.env.EMAIL_PASSWORD, // App Password from Gmail
     },
+    // Force IPv4 — Minikube and some cloud environments lack IPv6 connectivity
+    tls: { servername: "smtp.gmail.com" },
+    family: 4,
   });
 };
 
