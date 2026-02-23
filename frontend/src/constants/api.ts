@@ -11,6 +11,7 @@ export const BASE_URL =
 export const AUTH_URL = `${BASE_URL}/auth`;
 export const HISTORY_URL = `${BASE_URL}/history`;
 export const UPLOAD_URL = `${BASE_URL}/upload`;
+export const ADMIN_URL = `${BASE_URL}/admin`;
 
 // Base URL for static assets (profile pictures, uploads).
 // When API_URL is set, derive the origin from it.

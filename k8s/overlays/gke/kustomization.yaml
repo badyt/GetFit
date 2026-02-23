@@ -4,6 +4,9 @@ kind: Kustomization
 resources:
   - ../../base
   - secrets.yaml
+  - service-account.yaml
+  - migration-job.yaml
+  - seed-job.yaml
 
 # -------------------------------------------------------
 # Swap local image names → Artifact Registry
@@ -16,5 +19,66 @@ images:
     newName: europe-west1-docker.pkg.dev/getfit-prod-487511/getfit-repo/getfit-frontend
     newTag: latest
 
-# No patches needed — base ingress is already hostless and
-# imagePullPolicy defaults to IfNotPresent.
+patches:
+  # -------------------------------------------------------
+  # Backend: always pull latest image from Artifact Registry
+  # -------------------------------------------------------
+  - target:
+      kind: Deployment
+      name: backend
+      namespace: getfit
+    patch: |-
+      - op: replace
+        path: /spec/template/spec/containers/0/imagePullPolicy
+        value: "Always"
+  # -------------------------------------------------------
+  # Frontend: always pull latest image from Artifact Registry
+  # -------------------------------------------------------
+  - target:
+      kind: Deployment
+      name: frontend
+      namespace: getfit
+    patch: |-
+      - op: replace
+        path: /spec/template/spec/containers/0/imagePullPolicy
+        value: "Always"
+  # -------------------------------------------------------
+  # Backend: use backend-sa ServiceAccount (Workload Identity)
+  # -------------------------------------------------------
+  - target:
+      kind: Deployment
+      name: backend
+      namespace: getfit
+    patch: |-
+      - op: add
+        path: /spec/template/spec/serviceAccountName
+        value: "backend-sa"
+  # -------------------------------------------------------
+  # Backend: add Cloud SQL Auth Proxy sidecar
+  # -------------------------------------------------------
+  - target:
+      kind: Deployment
+      name: backend
+      namespace: getfit
+    patch: |-
+      - op: add
+        path: /spec/template/spec/containers/-
+        value:
+          name: cloud-sql-proxy
+          image: gcr.io/cloud-sql-connectors/cloud-sql-proxy:2
+          args:
+            - "getfit-prod-487511:europe-west1:getfit-postgres"
+            - "--port=5432"
+            - "--health-check"
+          ports:
+            - containerPort: 5432
+              protocol: TCP
+          resources:
+            requests:
+              cpu: 25m
+              memory: 64Mi
+            limits:
+              cpu: 250m
+              memory: 128Mi
+          securityContext:
+            runAsNonRoot: true

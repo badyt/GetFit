@@ -4,6 +4,9 @@ kind: Kustomization
 resources:
   - ../../base
   - secrets.yaml
+  - postgres.yaml
+  - migration-job.yaml
+  - seed-job.yaml
 
 patches:
   # -------------------------------------------------------
@@ -26,14 +29,28 @@ patches:
       - op: replace
         path: /spec/template/spec/containers/0/imagePullPolicy
         value: Never
+  # -------------------------------------------------------
+  # Backend: add wait-for-db initContainer (in-cluster Postgres)
+  # -------------------------------------------------------
   - target:
-      kind: Job
-      name: prisma-migrate
+      kind: Deployment
+      name: backend
       namespace: getfit
     patch: |-
-      - op: replace
-        path: /spec/template/spec/containers/0/imagePullPolicy
-        value: Never
+      - op: add
+        path: /spec/template/spec/initContainers
+        value:
+          - name: wait-for-db
+            image: postgres:16-alpine
+            command:
+              - sh
+              - -c
+              - |
+                until pg_isready -h database -p 5432 -U postgres; do
+                  echo "Waiting for database to be ready..."
+                  sleep 2
+                done
+                echo "Database is ready!"
   # -------------------------------------------------------
   # Ingress: add host for local access via getfit.local
   # -------------------------------------------------------

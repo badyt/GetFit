@@ -33,7 +33,7 @@ export default function AuthForm({ mode, onSuccess }: Props) {
     setLoading(true);
     try {
       if (mode === "login") {
-        await login(email.trim(), password, "TRAINEE");
+        await login(email.trim(), password);
         onSuccess && onSuccess();
       } else {
         const result = await register(name.trim(), email.trim(), password, phone.trim());

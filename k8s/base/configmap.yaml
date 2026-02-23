@@ -8,5 +8,3 @@ metadata:
 data:
   NODE_ENV: "production"
   PORT: "3000"
-  POSTGRES_DB: "getfit"
-  POSTGRES_USER: "postgres"

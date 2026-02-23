@@ -24,7 +24,7 @@ type AuthState = {
   user: User | null;
   isAuthenticated: boolean;
   isHydrated: boolean;
-  login: (email: string, password: string, role: string) => Promise<any>;
+  login: (email: string, password: string) => Promise<any>;
   register: (name: string, email: string, password: string, phone?: string) => Promise<any>;
   logout: () => void;
   setToken: (token: string | null) => void;
@@ -45,7 +45,7 @@ export const useAuthStore = create<AuthState>()(
       setToken: (token) => set(() => ({ token, isAuthenticated: !!token })),
       setUser: (user) => set(() => ({ user })),
 
-      login: async (email, password, role) => {
+      login: async (email, password) => {
         try {
           const controller = new AbortController();
           const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
@@ -53,7 +53,7 @@ export const useAuthStore = create<AuthState>()(
           const res = await fetch(`${AUTH_URL}/login`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ email, password, role }),
+            body: JSON.stringify({ email, password }),
             signal: controller.signal,
           });
 

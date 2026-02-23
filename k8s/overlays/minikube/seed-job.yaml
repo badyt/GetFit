@@ -1,15 +1,6 @@
 # ---------------------------------------------------
-# Job: Seed database with food/exercise data
-#
-# Apply AFTER prisma-migrate completes:
-#   kubectl apply -f k8s/seed-job.yaml
-#
-# Watch progress:
-#   kubectl logs -n getfit job/db-seed -f
-#
-# Re-run if needed:
-#   kubectl delete job db-seed -n getfit
-#   kubectl apply -f k8s/seed-job.yaml
+# Job: Seed database with food/exercise data (minikube)
+# Waits for migrations to complete before importing.
 # ---------------------------------------------------
 apiVersion: batch/v1
 kind: Job
@@ -41,13 +32,13 @@ spec:
               until pg_isready -h database -p 5432 -U postgres; do
                 sleep 2
               done
-              
+
               echo "Waiting for migrations to complete..."
               until psql "$DATABASE_URL" -c "SELECT 1 FROM \"User\" LIMIT 1;" 2>/dev/null; do
                 echo "Tables not ready yet, waiting for migrations..."
                 sleep 3
               done
-              
+
               echo "Database migrations complete — starting seed."
           env:
             - name: DATABASE_URL
@@ -58,7 +49,7 @@ spec:
       containers:
         - name: seed
           image: getfit-server:latest
-          imagePullPolicy: IfNotPresent
+          imagePullPolicy: Never
           command:
             - sh
             - -c

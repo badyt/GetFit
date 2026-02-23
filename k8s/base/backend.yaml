@@ -59,19 +59,10 @@ spec:
       labels:
         app: backend
     spec:
-      # Wait for PostgreSQL before the main container starts
-      initContainers:
-        - name: wait-for-db
-          image: postgres:16-alpine
-          command:
-            - sh
-            - -c
-            - |
-              until pg_isready -h database -p 5432 -U postgres; do
-                echo "Waiting for database to be ready..."
-                sleep 2
-              done
-              echo "Database is ready!"
+      securityContext:
+        fsGroup: 1000
+        runAsUser: 1000
+        runAsNonRoot: true
       containers:
         - name: backend
           image: getfit-server:latest

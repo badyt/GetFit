@@ -1,0 +1,102 @@
+# ---------------------------------------------------
+# Service: ClusterIP named "database"
+# Matches the hostname used in DATABASE_URL
+# ---------------------------------------------------
+apiVersion: v1
+kind: Service
+metadata:
+  name: database
+  namespace: getfit
+  labels:
+    app: postgres
+    app.kubernetes.io/part-of: getfit
+spec:
+  type: ClusterIP
+  selector:
+    app: postgres
+  ports:
+    - port: 5432
+      targetPort: 5432
+      protocol: TCP
+
+---
+# ---------------------------------------------------
+# StatefulSet: postgres (minikube only)
+# Uses PVC template for persistent data
+# ---------------------------------------------------
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: postgres
+  namespace: getfit
+  labels:
+    app: postgres
+    app.kubernetes.io/part-of: getfit
+spec:
+  serviceName: database
+  replicas: 1
+  selector:
+    matchLabels:
+      app: postgres
+  template:
+    metadata:
+      labels:
+        app: postgres
+    spec:
+      containers:
+        - name: postgres
+          image: postgres:16-alpine
+          ports:
+            - containerPort: 5432
+          env:
+            - name: POSTGRES_DB
+              value: "getfit"
+            - name: POSTGRES_USER
+              value: "postgres"
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: getfit-secrets
+                  key: DB_PASSWORD
+            # PGDATA must point to a subdirectory of the mount,
+            # otherwise PostgreSQL fails due to lost+found in the PVC root
+            - name: PGDATA
+              value: /var/lib/postgresql/data/pgdata
+          volumeMounts:
+            - name: postgres-data
+              mountPath: /var/lib/postgresql/data
+          readinessProbe:
+            exec:
+              command:
+                - pg_isready
+                - -U
+                - postgres
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            timeoutSeconds: 5
+          livenessProbe:
+            exec:
+              command:
+                - pg_isready
+                - -U
+                - postgres
+            initialDelaySeconds: 15
+            periodSeconds: 20
+            timeoutSeconds: 5
+          resources:
+            requests:
+              memory: "128Mi"
+              cpu: "50m"
+            limits:
+              memory: "512Mi"
+              cpu: "500m"
+  # PVC template — one 1Gi volume per replica
+  volumeClaimTemplates:
+    - metadata:
+        name: postgres-data
+      spec:
+        accessModes:
+          - ReadWriteOnce
+        resources:
+          requests:
+            storage: 1Gi

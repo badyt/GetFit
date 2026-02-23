@@ -15,9 +15,10 @@ export default function TabsLayout() {
     return null;
   }
 
-  const userRole = String(user.role).toUpperCase().trim();
+  const userRole = String(user.role || "").toUpperCase().trim();
   const isTrainer = userRole === "TRAINER";
   const isTrainee = userRole === "TRAINEE";
+  const isAdmin = userRole === "ADMIN";
 
   return (
     <Tabs
@@ -57,6 +58,8 @@ export default function TabsLayout() {
         name="catalog"
         options={{
           title: "Catalog",
+          tabBarStyle: { display: !isAdmin ? "flex" : "none" },
+          href: !isAdmin ? undefined : null,
           tabBarIcon: ({ color, size, focused }) => (
             <Ionicons name={focused ? "grid" : "grid-outline"} size={size} color={color} />
           ),
@@ -103,6 +106,40 @@ export default function TabsLayout() {
           href: isTrainer ? undefined : null,
           tabBarIcon: ({ color, size, focused }) => (
             <Ionicons name={focused ? "people" : "people-outline"} size={size} color={color} />
+          ),
+        }}
+      />
+      {/* ── Admin-only tabs ── */}
+      <Tabs.Screen
+        name="admin-users"
+        options={{
+          title: "Users",
+          tabBarStyle: { display: isAdmin ? "flex" : "none" },
+          href: isAdmin ? undefined : null,
+          tabBarIcon: ({ color, size, focused }) => (
+            <Ionicons name={focused ? "people-circle" : "people-circle-outline"} size={size} color={color} />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="admin-food"
+        options={{
+          title: "Food",
+          tabBarStyle: { display: isAdmin ? "flex" : "none" },
+          href: isAdmin ? undefined : null,
+          tabBarIcon: ({ color, size, focused }) => (
+            <Ionicons name={focused ? "nutrition" : "nutrition-outline"} size={size} color={color} />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="admin-exercises"
+        options={{
+          title: "Exercises",
+          tabBarStyle: { display: isAdmin ? "flex" : "none" },
+          href: isAdmin ? undefined : null,
+          tabBarIcon: ({ color, size, focused }) => (
+            <Ionicons name={focused ? "barbell" : "barbell-outline"} size={size} color={color} />
           ),
         }}
       />

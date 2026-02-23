@@ -1,0 +1,53 @@
+# ---------------------------------------------------
+# Job: Run Prisma migrations (minikube — connects to in-cluster Postgres)
+# ---------------------------------------------------
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: prisma-migrate
+  namespace: getfit
+  labels:
+    app: backend
+    app.kubernetes.io/part-of: getfit
+    app.kubernetes.io/component: migration
+spec:
+  backoffLimit: 5
+  activeDeadlineSeconds: 120
+  template:
+    metadata:
+      labels:
+        app: backend
+        component: migration
+    spec:
+      # Wait for PostgreSQL to accept connections before migrating
+      initContainers:
+        - name: wait-for-db
+          image: postgres:16-alpine
+          command:
+            - sh
+            - -c
+            - |
+              until pg_isready -h database -p 5432 -U postgres; do
+                echo "Waiting for database to be ready..."
+                sleep 2
+              done
+              echo "Database is ready — starting migration."
+      containers:
+        - name: migrate
+          image: getfit-server:latest
+          imagePullPolicy: Never
+          command: ["npx", "prisma", "migrate", "deploy"]
+          env:
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: getfit-secrets
+                  key: DATABASE_URL
+          resources:
+            requests:
+              memory: "128Mi"
+              cpu: "50m"
+            limits:
+              memory: "256Mi"
+              cpu: "250m"
+      restartPolicy: Never

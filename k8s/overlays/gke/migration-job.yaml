@@ -1,0 +1,79 @@
+# ---------------------------------------------------
+# Job: Run Prisma migrations (GKE — via Cloud SQL Auth Proxy sidecar)
+# ---------------------------------------------------
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: prisma-migrate
+  namespace: getfit
+  labels:
+    app: backend
+    app.kubernetes.io/part-of: getfit
+    app.kubernetes.io/component: migration
+spec:
+  backoffLimit: 5
+  activeDeadlineSeconds: 600
+  template:
+    metadata:
+      labels:
+        app: backend
+        component: migration
+    spec:
+      serviceAccountName: backend-sa
+      containers:
+        - name: migrate
+          image: getfit-server:latest
+          imagePullPolicy: Always
+          command:
+            - sh
+            - -c
+            - |
+              echo "Waiting for Cloud SQL Proxy..."
+              until node -e "const net = require('net'); const s = net.connect(5432, '127.0.0.1', () => { s.end(); process.exit(0); }); s.on('error', () => process.exit(1));" 2>/dev/null; do
+                sleep 2
+              done
+              echo "Cloud SQL Proxy is ready — running migrations."
+
+              npx prisma migrate deploy
+              EXIT_CODE=$?
+              echo "Migration finished with exit code $EXIT_CODE"
+              
+              # Signal the Cloud SQL Proxy to quit gracefully
+              echo "Signaling Cloud SQL Proxy to shut down..."
+              wget -qO- --post-data='' http://localhost:9091/quitquitquit || echo "Failed to signal proxy (may already be down)"
+              
+              exit $EXIT_CODE
+          env:
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: getfit-secrets
+                  key: DATABASE_URL
+          resources:
+            requests:
+              memory: "128Mi"
+              cpu: "50m"
+            limits:
+              memory: "256Mi"
+              cpu: "250m"
+        # Cloud SQL Auth Proxy sidecar
+        - name: cloud-sql-proxy
+          image: gcr.io/cloud-sql-connectors/cloud-sql-proxy:2
+          args:
+            - "getfit-prod-487511:europe-west1:getfit-postgres"
+            - "--port=5432"
+            - "--quitquitquit"        # enables /quitquitquit endpoint for graceful shutdown
+            - "--health-check"
+          ports:
+            - containerPort: 5432
+              protocol: TCP
+          resources:
+            requests:
+              cpu: 25m
+              memory: 64Mi
+            limits:
+              cpu: 250m
+              memory: 128Mi
+          securityContext:
+            runAsNonRoot: true
+      restartPolicy: Never

@@ -53,14 +53,22 @@ server {
     add_header X-Content-Type-Options "nosniff" always;
     add_header X-XSS-Protection "1; mode=block" always;
 
-    # Cache static assets
+    # Cache static assets (hashed filenames)
     location ~* \.(js|css|png|jpg|jpeg|gif|ico|svg|woff|woff2|ttf|eot)$ {
         expires 1y;
         add_header Cache-Control "public, immutable";
     }
 
+    # No cache for HTML (ensures fresh bundle references)
+    location ~* \.html$ {
+        add_header Cache-Control "no-cache, no-store, must-revalidate";
+        add_header Pragma "no-cache";
+        add_header Expires "0";
+    }
+
     # Handle client-side routing
     location / {
+        add_header Cache-Control "no-cache, no-store, must-revalidate";
         try_files \$uri \$uri/ /index.html;
     }
 

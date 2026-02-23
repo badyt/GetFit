@@ -1,3 +1,4 @@
+import { SERVER_BASE } from "../constants/api";
 // Food Images
 const foodImages: { [key: string]: any } = {
   "Apple.png": require("../../assets/images/Food/Apple.png"),
@@ -112,10 +113,26 @@ const exerciseImages: { [key: string]: any } = {
 
 export const getFoodImage = (imageName: string | null) => {
   if (!imageName) return null;
-  return foodImages[imageName] || null;
+  if (foodImages[imageName]) return foodImages[imageName];
+  // If imageName looks like a backend upload path, return as remote image
+  if (imageName.startsWith("/uploads/")) {
+    return { uri: SERVER_BASE + imageName };
+  }
+  // If imageName is already a full URL
+  if (imageName.startsWith("http://") || imageName.startsWith("https://")) {
+    return { uri: imageName };
+  }
+  return null;
 };
 
 export const getExerciseImage = (imageName: string | null) => {
   if (!imageName) return null;
-  return exerciseImages[imageName] || null;
+  if (exerciseImages[imageName]) return exerciseImages[imageName];
+  if (imageName.startsWith("/uploads/")) {
+    return { uri: SERVER_BASE + imageName };
+  }
+  if (imageName.startsWith("http://") || imageName.startsWith("https://")) {
+    return { uri: imageName };
+  }
+  return null;
 };

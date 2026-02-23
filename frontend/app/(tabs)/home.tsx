@@ -63,6 +63,10 @@ export default function Home() {
 
   const isTrainer = user?.role === "TRAINER";
   const isTrainee = user?.role === "TRAINEE";
+  const isAdmin = user?.role === "ADMIN";
+
+  // ── Admin state ──
+  const [adminStats, setAdminStats] = useState<any>(null);
 
   useEffect(() => {
     loadDashboardData();
@@ -75,11 +79,27 @@ export default function Home() {
         await Promise.all([loadTrainerStats(), loadTopTrainees()]);
       } else if (isTrainee) {
         await Promise.all([loadTodaysPlan(), loadProgressSummary()]);
+      } else if (isAdmin) {
+        await loadAdminStats();
       }
     } catch (error) {
       console.error("Error loading dashboard:", error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const loadAdminStats = async () => {
+    try {
+      const res = await fetch(`${BASE_URL}/admin/stats`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const data = await res.json();
+      if (data.success) {
+        setAdminStats(data.data);
+      }
+    } catch (error) {
+      console.error("Error loading admin stats:", error);
     }
   };
 
@@ -562,6 +582,105 @@ export default function Home() {
               </View>
             </View>
           )}
+        </View>
+      )}
+
+      {/* Admin Dashboard */}
+      {isAdmin && (
+        <View style={styles.content}>
+          {/* Overview Stats */}
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>🛡️ Admin Overview</Text>
+            <View style={styles.statsGrid}>
+              <View style={[styles.statCard, { backgroundColor: "#eef2ff" }]}>
+                <Ionicons name="people" size={32} color="#6366f1" />
+                <Text style={styles.statCardValue}>{adminStats?.totalUsers || 0}</Text>
+                <Text style={styles.statCardLabel}>Total Users</Text>
+              </View>
+              <View style={[styles.statCard, { backgroundColor: "#f0fdf4" }]}>
+                <Ionicons name="shield-checkmark" size={32} color="#10b981" />
+                <Text style={styles.statCardValue}>{adminStats?.trainers || 0}</Text>
+                <Text style={styles.statCardLabel}>Trainers</Text>
+              </View>
+              <View style={[styles.statCard, { backgroundColor: "#fef3c7" }]}>
+                <Ionicons name="fitness" size={32} color="#f59e0b" />
+                <Text style={styles.statCardValue}>{adminStats?.trainees || 0}</Text>
+                <Text style={styles.statCardLabel}>Trainees</Text>
+              </View>
+            </View>
+          </View>
+
+          {/* Content Stats */}
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>📦 Content</Text>
+            <View style={styles.statsGrid}>
+              <View style={[styles.statCard, { backgroundColor: "#fce7f3" }]}>
+                <Ionicons name="nutrition" size={32} color="#ec4899" />
+                <Text style={styles.statCardValue}>{adminStats?.foods || 0}</Text>
+                <Text style={styles.statCardLabel}>Foods</Text>
+              </View>
+              <View style={[styles.statCard, { backgroundColor: "#e0e7ff" }]}>
+                <Ionicons name="barbell" size={32} color="#6366f1" />
+                <Text style={styles.statCardValue}>{adminStats?.exercises || 0}</Text>
+                <Text style={styles.statCardLabel}>Exercises</Text>
+              </View>
+              <View style={[styles.statCard, { backgroundColor: "#f0fdf4" }]}>
+                <Ionicons name="folder" size={32} color="#10b981" />
+                <Text style={styles.statCardValue}>{adminStats?.categories || 0}</Text>
+                <Text style={styles.statCardLabel}>Categories</Text>
+              </View>
+            </View>
+          </View>
+
+          {/* Quick Actions */}
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>⚡ Quick Actions</Text>
+            <View style={styles.quickActionsGrid}>
+              <Pressable
+                style={[styles.quickActionCard, { backgroundColor: "#eef2ff" }]}
+                onPress={() => router.push("/(tabs)/admin-users" as any)}
+              >
+                <View style={[styles.quickActionIcon, { backgroundColor: "#6366f1" }]}>
+                  <Ionicons name="people-circle" size={24} color="#fff" />
+                </View>
+                <Text style={styles.quickActionTitle}>Manage Users</Text>
+                <Text style={styles.quickActionSubtitle}>View & edit roles</Text>
+              </Pressable>
+
+              <Pressable
+                style={[styles.quickActionCard, { backgroundColor: "#fce7f3" }]}
+                onPress={() => router.push("/(tabs)/admin-food" as any)}
+              >
+                <View style={[styles.quickActionIcon, { backgroundColor: "#ec4899" }]}>
+                  <Ionicons name="nutrition" size={24} color="#fff" />
+                </View>
+                <Text style={styles.quickActionTitle}>Add Food</Text>
+                <Text style={styles.quickActionSubtitle}>Manage catalog</Text>
+              </Pressable>
+
+              <Pressable
+                style={[styles.quickActionCard, { backgroundColor: "#e0e7ff" }]}
+                onPress={() => router.push("/(tabs)/admin-exercises" as any)}
+              >
+                <View style={[styles.quickActionIcon, { backgroundColor: "#6366f1" }]}>
+                  <Ionicons name="barbell" size={24} color="#fff" />
+                </View>
+                <Text style={styles.quickActionTitle}>Add Exercise</Text>
+                <Text style={styles.quickActionSubtitle}>Manage catalog</Text>
+              </Pressable>
+
+              <Pressable
+                style={[styles.quickActionCard, { backgroundColor: "#fee2e2" }]}
+                onPress={() => router.push("/(tabs)/profile")}
+              >
+                <View style={[styles.quickActionIcon, { backgroundColor: "#ef4444" }]}>
+                  <Ionicons name="settings" size={24} color="#fff" />
+                </View>
+                <Text style={styles.quickActionTitle}>Settings</Text>
+                <Text style={styles.quickActionSubtitle}>Manage profile</Text>
+              </Pressable>
+            </View>
+          </View>
         </View>
       )}
 

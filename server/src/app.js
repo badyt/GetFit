@@ -8,6 +8,7 @@ const planRoutes = require("./routes/planRoutes");
 const historyRoutes = require("./routes/historyRoutes");
 const uploadRoutes = require("./routes/uploadRoutes");
 const userRoutes = require("./routes/userRoutes");
+const adminRoutes = require("./routes/adminRoutes");
 const authMiddleware = require("./middleware/authMiddleware");
 
 const app = express();
@@ -33,6 +34,7 @@ app.use("/api/plans", planRoutes);
 app.use("/api/history", historyRoutes);
 app.use("/api/upload", uploadRoutes);
 app.use("/api/user", userRoutes);
+app.use("/api/admin", adminRoutes);
 
 // Test route
 app.get("/", (req, res) => {

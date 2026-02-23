@@ -1,15 +1,6 @@
 # ---------------------------------------------------
-# Job: Seed database with food/exercise data
-#
-# Apply AFTER prisma-migrate completes:
-#   kubectl apply -f k8s/seed-job.yaml
-#
-# Watch progress:
-#   kubectl logs -n getfit job/db-seed -f
-#
-# Re-run if needed:
-#   kubectl delete job db-seed -n getfit
-#   kubectl apply -f k8s/seed-job.yaml
+# Job: Seed database with food/exercise data (GKE — via Cloud SQL Auth Proxy)
+# Waits for migrations to complete before importing.
 # ---------------------------------------------------
 apiVersion: batch/v1
 kind: Job
@@ -22,47 +13,30 @@ metadata:
     app.kubernetes.io/component: seed
 spec:
   backoffLimit: 3
-  activeDeadlineSeconds: 180
+  activeDeadlineSeconds: 900
   template:
     metadata:
       labels:
         app: backend
         component: seed
     spec:
-      # Wait for migrations to complete before seeding
-      initContainers:
-        - name: wait-for-migrations
-          image: postgres:16-alpine
-          command:
-            - sh
-            - -c
-            - |
-              echo "Waiting for database to be ready..."
-              until pg_isready -h database -p 5432 -U postgres; do
-                sleep 2
-              done
-              
-              echo "Waiting for migrations to complete..."
-              until psql "$DATABASE_URL" -c "SELECT 1 FROM \"User\" LIMIT 1;" 2>/dev/null; do
-                echo "Tables not ready yet, waiting for migrations..."
-                sleep 3
-              done
-              
-              echo "Database migrations complete — starting seed."
-          env:
-            - name: DATABASE_URL
-              valueFrom:
-                secretKeyRef:
-                  name: getfit-secrets
-                  key: DATABASE_URL
+      serviceAccountName: backend-sa
       containers:
         - name: seed
           image: getfit-server:latest
-          imagePullPolicy: IfNotPresent
+          imagePullPolicy: Always
           command:
             - sh
             - -c
             - |
+              echo "Waiting for Cloud SQL Proxy..."
+              until node -e "const net = require('net'); const s = net.connect(5432, '127.0.0.1', () => { s.end(); process.exit(0); }); s.on('error', () => process.exit(1));" 2>/dev/null; do
+                sleep 2
+              done
+
+              echo "Cloud SQL Proxy is ready. Starting seed..."
+              sleep 5
+
               echo "Seeding admin account..."
               node src/scripts/seedAdmin.js
               echo "Importing food data..."
@@ -70,6 +44,10 @@ spec:
               echo "Importing exercise data..."
               node src/scripts/importExercises.js
               echo "Seed complete."
+              
+              # Signal the Cloud SQL Proxy to quit gracefully
+              echo "Signaling Cloud SQL Proxy to shut down..."
+              wget -qO- --post-data='' http://localhost:9091/quitquitquit || echo "Failed to signal proxy (may already be down)"
           env:
             - name: DATABASE_URL
               valueFrom:
@@ -101,4 +79,24 @@ spec:
             limits:
               cpu: 200m
               memory: 256Mi
+        # Cloud SQL Auth Proxy sidecar
+        - name: cloud-sql-proxy
+          image: gcr.io/cloud-sql-connectors/cloud-sql-proxy:2
+          args:
+            - "getfit-prod-487511:europe-west1:getfit-postgres"
+            - "--port=5432"
+            - "--quitquitquit"
+            - "--health-check"
+          ports:
+            - containerPort: 5432
+              protocol: TCP
+          resources:
+            requests:
+              cpu: 25m
+              memory: 64Mi
+            limits:
+              cpu: 250m
+              memory: 128Mi
+          securityContext:
+            runAsNonRoot: true
       restartPolicy: OnFailure

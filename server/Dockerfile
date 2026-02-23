@@ -54,8 +54,8 @@ COPY --from=builder --chown=appuser:nodejs /app/node_modules/@prisma ./node_modu
 # Copy application code
 COPY --chown=appuser:nodejs . .
 
-# Create uploads directory with proper permissions
-RUN mkdir -p uploads/profiles && \
+# Create uploads directories with proper permissions
+RUN mkdir -p uploads/profiles uploads/food uploads/exercises && \
     chown -R appuser:nodejs uploads
 
 # Switch to non-root user
