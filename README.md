@@ -1,151 +1,151 @@
-# GetFit
+# GetFit -- Cloud-Native Workout Management Platform
 
-A fitness tracking and coaching application with a Node.js/Express backend, Expo (React Native) web frontend, and PostgreSQL database.
+GetFit is a fullstack workout management platform supporting Trainer and
+Trainee roles. It is designed and deployed using production-style
+architecture with Docker and Kubernetes.
 
-## Project Structure
+------------------------------------------------------------------------
 
-```
-├── server/           # Backend API (Node.js + Express + Prisma)
-├── frontend/         # Frontend SPA (Expo web → nginx)
-├── k8s/              # Kubernetes manifests (Kustomize)
-│   ├── base/         #   Shared resources
-│   ├── overlays/
-│   │   ├── minikube/ #   Local development cluster
-│   │   └── gke/      #   Google Kubernetes Engine
-├── docker-compose.yml
-└── docker-compose.dev.yml
-```
+## 🚀 Overview
 
----
+GetFit allows trainers to create structured workout and meal plans for
+their trainees, while trainees can track their daily progress, weight,
+and nutrition intake.
 
-## Deployment Options
+The project demonstrates real-world fullstack development,
+containerization, and cloud-native deployment practices.
 
-### 1. Docker Compose (simplest)
+------------------------------------------------------------------------
 
-**Prerequisites:** Docker and Docker Compose installed.
+## 🏗 Architecture (GKE – Cloud SQL Auth Proxy Sidecar)
 
-Create a `.env` file with your credentials:
+User Browser
+  ↓
+Kubernetes Ingress (routes: `/`, `/api`, `/uploads`)
+  ↓
++-----------------------------------------------+
+|                 GKE Cluster                   |
+|                                               |
+|  Frontend Service (ClusterIP) → Frontend Pod  |
+|    - nginx serving Expo Web build             |
+|                                               |
+|  Backend Service (ClusterIP)  → Backend Pod   |
+|  +-----------------------------------------+  |
+|  | Backend Container (Node.js + Express)   |  |
+|  |   - Prisma ORM                          |  |
+|  |   - connects to DB at `localhost:5432`  |  |
+|  |                                         |  |
+|  | Cloud SQL Auth Proxy (sidecar)          |  |
+|  |   - listens on `127.0.0.1:5432`         |  |
+|  |   - tunnels/authenticates to Cloud SQL  |  |
+|  +-----------------------------------------+  |
++-----------------------------------------------+
+                    ↓
+           Cloud SQL (PostgreSQL)
 
-```env
-DB_PASSWORD=postgres
-JWT_SECRET=your_jwt_secret
-EMAIL_USER=your_email@gmail.com
-EMAIL_PASSWORD=your_email_app_password
-APP_URL=http://localhost:3000
-API_URL=http://localhost:3000/api
-```
+Backend → SMTP Provider (Email Service)
 
-Start the stack:
+------------------------------------------------------------------------
 
-```bash
-# Production
-docker compose up -d --build
+## 🧩 Features
 
-# Development (with hot-reload)
-docker compose -f docker-compose.dev.yml up -d --build
-```
-
-| URL                        | Service            |
-|----------------------------|--------------------|
-| `http://localhost`         | Frontend           |
-| `http://localhost:3000`    | Backend API        |
-
-Stop:
-
-```bash
-docker compose down          # stop containers (data persists)
-docker compose down -v       # stop containers and delete volumes
-```
-
----
-
-### 2. Kubernetes — Minikube (local)
-
-Deploy to a local Minikube cluster using Kustomize.
-
-**Prerequisites:** Minikube, kubectl, Docker Desktop.
-
-```bash
-# Start minikube
-minikube start --driver=docker
-minikube addons enable ingress
-
-# Build images inside minikube's Docker daemon
-& minikube -p minikube docker-env --shell powershell | Invoke-Expression
-docker build -t getfit-server:latest ./server
-docker build -t getfit-frontend:latest ./frontend
-
-# Create secrets (copy example, fill in real values)
-cp k8s/overlays/minikube/secrets.example.yaml k8s/overlays/minikube/secrets.yaml
-# Edit k8s/overlays/minikube/secrets.yaml with your credentials
-
-# Deploy
-kubectl apply -k k8s/overlays/minikube
-
-# Wait for pods
-kubectl wait --for=condition=ready pod -l app=postgres -n getfit --timeout=120s
-kubectl wait --for=condition=complete job/prisma-migrate -n getfit --timeout=120s
-kubectl wait --for=condition=ready pod -l app=backend -n getfit --timeout=120s
-
-# Add host entry (run as Administrator)
-# Add to C:\Windows\System32\drivers\etc\hosts:
-#   <minikube-ip>  getfit.local
-minikube ip
-```
-
-Access at **http://getfit.local**
-
-See [K8S_DEPLOYMENT.md](K8S_DEPLOYMENT.md) for detailed instructions.
+### 👨‍🏫 Trainer
+- Manage assigned trainees.
+- Create and assign workout plans.
+- Create and assign meal plans.
+- Track trainee weight and nutrition history.
+- Invite trainees via secure email invitations.
+- Generate and share unique join codes for trainee enrollment.
 
 ---
 
-### 3. Kubernetes — GKE (production)
-
-Deploy to Google Kubernetes Engine using Kustomize with Artifact Registry images.
-
-**Prerequisites:** GKE cluster created, `gcloud` CLI configured, images pushed to Artifact Registry.
-
-```bash
-# Authenticate with GKE
-gcloud container clusters get-credentials YOUR_CLUSTER --region YOUR_REGION --project getfit-prod-487511
-
-# Create secrets (copy example, fill in production values)
-cp k8s/overlays/gke/secrets.example.yaml k8s/overlays/gke/secrets.yaml
-# Edit k8s/overlays/gke/secrets.yaml with production credentials
-
-# Deploy
-kubectl apply -k k8s/overlays/gke
-
-# Check status
-kubectl get pods -n getfit
-kubectl get ingress -n getfit
-```
-
-Images are pulled from Artifact Registry:
-- `europe-west1-docker.pkg.dev/getfit-prod-487511/getfit-repo/getfit-server:latest`
-- `europe-west1-docker.pkg.dev/getfit-prod-487511/getfit-repo/getfit-frontend:latest`
+### 🧍 Trainee
+- View assigned workout and meal plans.
+- Log daily weight measurements.
+- Log calorie and protein intake.
+- Upload profile images.
+- Join a trainer using a secure invitation code.
+- View historical progress data.
 
 ---
 
-## Useful Commands
+### 🛡 Admin (Environment-Generated Account)
+- Admin account generated securely during deployment via environment variables / Kubernetes secrets.
+- Promote trainees to trainers.
+- Delete users.
+- Add and manage food catalog entries.
+- Add and manage exercise catalog entries.
+- System-level management and moderation capabilities.
 
-```bash
-# Check pod status
-kubectl get pods -n getfit
+---
 
-# View logs
-kubectl logs -n getfit deployment/backend
-kubectl logs -n getfit deployment/frontend
-kubectl logs -n getfit job/prisma-migrate
+### 🔐 Authentication & Email Workflow
+- Secure registration and login using JWT-based authentication.
+- SMTP-based transactional email delivery implemented with Nodemailer.
+- Trainer invitation flow with secure email-based verification.
+- Role-based access control (Admin / Trainer / Trainee).
 
-# Restart deployments
-kubectl rollout restart deployment backend -n getfit
-kubectl rollout restart deployment frontend -n getfit
+------------------------------------------------------------------------
 
-# Re-run migrations
-kubectl delete job prisma-migrate -n getfit
-kubectl apply -k k8s/overlays/minikube   # or k8s/overlays/gke
+## 🛠 Tech Stack
 
-# Tear down (remove namespace, keep cluster)
-kubectl delete namespace getfit
-```
+Frontend: - Expo (React Native Web) - Static export served via nginx
+
+Backend: - Node.js + Express - Prisma ORM - JWT Authentication
+
+Database: - PostgreSQL - Cloud SQL (GKE production)
+
+Infrastructure: - Docker & Docker Compose - Kubernetes (GKE) - nginx
+reverse proxy - Runtime environment injection 
+
+------------------------------------------------------------------------
+
+## 🚀 Deployment
+
+Detailed deployment instructions are available in the `/docs` directory.
+
+### 📧 Email Configuration
+
+Setup and configuration for SMTP email service:
+
+👉 [Email Setup Guide](docs/email-setup.md)
+
+### 🐳 Docker Compose (Local / Single-Host)
+
+Run the full stack locally using Docker Compose:
+
+👉 [Docker Compose Deployment Guide](docs/DOCKER_DEPLOYMENT.md)
+
+---
+
+### ☸ Kubernetes (Minikube/GKE Production Deployment)
+
+Deploy the application using kubernetes locally (minikube) or to Google Kubernetes Engine:
+
+👉 [Kubernetes (Minikube/GKE) Deployment Guide](docs/K8S_DEPLOYMENT.md)
+
+---
+
+------------------------------------------------------------------------
+
+## 🔐 Configuration
+
+Environment variables include:
+
+Backend: - DATABASE_URL - JWT_SECRET - EMAIL_USER - EMAIL_PASSWORD
+
+Frontend: - build-time environment variables using EXPO_PUBLIC_* pattern - Defaults to "/api" in production (Ingress routing)
+
+------------------------------------------------------------------------
+
+## 📚 What This Project Demonstrates
+
+-   Fullstack system design and implementation
+-   Containerized multi-service architecture
+-   Kubernetes deployment (GKE)
+-   Managed PostgreSQL integration (Cloud SQL)
+-   Health checks and service dependencies
+-   Environment-specific configuration handling
+-   Production-ready nginx setup
+
+.

@@ -2,7 +2,7 @@
 
 ## ✅ What's Been Done
 
-Your GetFit server now has email verification using **Nodemailer with Gmail**. This checks if emails are real and sends verification emails on registration.
+GetFit server now has email verification using **Nodemailer with Gmail**. This checks if emails are real and sends verification emails on registration.
 
 ## 📋 Setup Steps
 

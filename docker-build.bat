@@ -34,11 +34,12 @@ if errorlevel 1 (
 
 REM Build frontend
 echo Building frontend...
-docker build --build-arg API_URL=http://localhost:3000/api -t getfit-frontend:latest ./frontend
+docker build -t getfit-frontend:latest ./frontend
 if errorlevel 1 (
     echo [ERROR] Frontend build failed!
     exit /b 1
 )
+
 
 echo.
 echo [SUCCESS] Build complete!
