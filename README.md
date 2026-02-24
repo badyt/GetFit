@@ -17,36 +17,6 @@ containerization, and cloud-native deployment practices.
 
 ------------------------------------------------------------------------
 
-## 🏗 Architecture (GKE – Cloud SQL Auth Proxy Sidecar)
-
-User Browser
-  ↓
-Kubernetes Ingress (routes: `/`, `/api`, `/uploads`)
-  ↓
-+-----------------------------------------------+
-|                 GKE Cluster                   |
-|                                               |
-|  Frontend Service (ClusterIP) → Frontend Pod  |
-|    - nginx serving Expo Web build             |
-|                                               |
-|  Backend Service (ClusterIP)  → Backend Pod   |
-|  +-----------------------------------------+  |
-|  | Backend Container (Node.js + Express)   |  |
-|  |   - Prisma ORM                          |  |
-|  |   - connects to DB at `localhost:5432`  |  |
-|  |                                         |  |
-|  | Cloud SQL Auth Proxy (sidecar)          |  |
-|  |   - listens on `127.0.0.1:5432`         |  |
-|  |   - tunnels/authenticates to Cloud SQL  |  |
-|  +-----------------------------------------+  |
-+-----------------------------------------------+
-                    ↓
-           Cloud SQL (PostgreSQL)
-
-Backend → SMTP Provider (Email Service)
-
-------------------------------------------------------------------------
-
 ## 🧩 Features
 
 ### 👨‍🏫 Trainer
@@ -148,4 +118,33 @@ Frontend: - build-time environment variables using EXPO_PUBLIC_* pattern - Defau
 -   Environment-specific configuration handling
 -   Production-ready nginx setup
 
+------------------------------------------------------------------------
+
+## 🏗 Architecture (GKE – Cloud SQL Auth Proxy Sidecar)
+
+User Browser
+  ↓
+Kubernetes Ingress (routes: `/`, `/api`, `/uploads`)
+  ↓
++-----------------------------------------------+
+|                 GKE Cluster                   |
+|                                               |
+|  Frontend Service (ClusterIP) → Frontend Pod  |
+|    - nginx serving Expo Web build             |
+|                                               |
+|  Backend Service (ClusterIP)  → Backend Pod   |
+|  +-----------------------------------------+  |
+|  | Backend Container (Node.js + Express)   |  |
+|  |   - Prisma ORM                          |  |
+|  |   - connects to DB at `localhost:5432`  |  |
+|  |                                         |  |
+|  | Cloud SQL Auth Proxy (sidecar)          |  |
+|  |   - listens on `127.0.0.1:5432`         |  |
+|  |   - tunnels/authenticates to Cloud SQL  |  |
+|  +-----------------------------------------+  |
++-----------------------------------------------+
+                    ↓
+           Cloud SQL (PostgreSQL)
+
+Backend → SMTP Provider (Email Service)
 .
