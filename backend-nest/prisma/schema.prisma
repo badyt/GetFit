@@ -1,0 +1,210 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id                    String         @id @default(cuid())
+  name                  String         @db.VarChar(255)
+  email                 String         @unique @db.VarChar(255)
+  password              String
+  phone                 String?        @db.VarChar(20)
+  role                  UserRole       @default(TRAINEE)
+  profilePicture        String?        @db.VarChar(500)
+  isEmailVerified       Boolean        @default(false)
+  emailVerificationToken String?       @unique
+  emailVerificationExpires DateTime?
+  createdAt             DateTime       @default(now())
+  updatedAt             DateTime       @updatedAt
+  
+  // One-to-Many: Each trainee has one trainer, each trainer has many trainees
+  trainerId    String?
+  trainer      User?          @relation("TrainerToTrainees", fields: [trainerId], references: [id], onDelete: SetNull)
+  trainees     User[]         @relation("TrainerToTrainees")
+  
+  // Relations
+  dailyHistory DailyHistory[]
+  mealPlan     MealPlan?
+  workoutPlan  WorkoutPlan?
+  
+  // Invite requests sent by this user (as trainer)
+  sentInvites     TrainerInvite[] @relation("InvitesSent")
+  // Invite requests received by this user (as trainee)
+  receivedInvites TrainerInvite[] @relation("InvitesReceived")
+
+  @@index([trainerId])
+}
+
+model WorkoutPlan {
+  id          String       @id @default(cuid())
+  name        String       @db.VarChar(255)
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  userId      String       @unique
+  workoutDays WorkoutDay[]
+  user        User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model WorkoutDay {
+  id            String               @id @default(cuid())
+  dayOfWeek     Int
+  description   String?              @db.VarChar(255)
+  createdAt     DateTime             @default(now())
+  updatedAt     DateTime             @updatedAt
+  workoutPlanId String
+  workoutPlan   WorkoutPlan          @relation(fields: [workoutPlanId], references: [id], onDelete: Cascade)
+  exercises     WorkoutDayExercise[]
+
+  @@unique([workoutPlanId, dayOfWeek])
+  @@index([workoutPlanId])
+}
+
+model WorkoutDayExercise {
+  id           String     @id @default(cuid())
+  sets         Int
+  reps         Int
+  weight       Float?
+  restTime     Int?
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+  workoutDayId String
+  exerciseId   String
+  exercise     Exercise   @relation(fields: [exerciseId], references: [id], onDelete: Cascade)
+  workoutDay   WorkoutDay @relation(fields: [workoutDayId], references: [id], onDelete: Cascade)
+
+  @@index([workoutDayId])
+  @@index([exerciseId])
+}
+
+model ExerciseCategory {
+  id          String     @id @default(cuid())
+  name        String     @unique @db.VarChar(255)
+  description String?
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+  exercises   Exercise[]
+}
+
+model Exercise {
+  id          String               @id @default(cuid())
+  name        String               @db.VarChar(255)
+  description String?
+  image       String?              @db.VarChar(500)
+  createdAt   DateTime             @default(now())
+  updatedAt   DateTime             @updatedAt
+  categoryId  String
+  category    ExerciseCategory     @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  workoutDays WorkoutDayExercise[]
+
+  @@index([categoryId])
+}
+
+model MealPlan {
+  id        String    @id @default(cuid())
+  name      String    @db.VarChar(255)
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  userId    String    @unique
+  mealDays  MealDay[]
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model MealDay {
+  id         String        @id @default(cuid())
+  dayOfWeek  Int
+  createdAt  DateTime      @default(now())
+  updatedAt  DateTime      @updatedAt
+  mealPlanId String
+  mealPlan   MealPlan      @relation(fields: [mealPlanId], references: [id], onDelete: Cascade)
+  meals      MealDayFood[]
+
+  @@unique([mealPlanId, dayOfWeek])
+  @@index([mealPlanId])
+}
+
+model MealDayFood {
+  id          String   @id @default(cuid())
+  quantity    Float
+  mealTime    String   @db.VarChar(5)
+  description String?  @db.VarChar(255)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  mealDayId   String
+  foodId      String
+  food        Food     @relation(fields: [foodId], references: [id], onDelete: Cascade)
+  mealDay     MealDay  @relation(fields: [mealDayId], references: [id], onDelete: Cascade)
+
+  @@index([mealDayId])
+  @@index([foodId])
+}
+
+model Food {
+  id              String        @id @default(cuid())
+  name            String        @db.VarChar(255)
+  caloriesPer100g Float
+  proteinPer100g  Float
+  image           String?       @db.VarChar(500)
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+  mealDayFoods    MealDayFood[]
+}
+
+model DailyHistory {
+  id            String   @id @default(cuid())
+  date          DateTime @db.Date
+  weight        Float?
+  calorieIntake Float?
+  proteinIntake Float?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  userId        String
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, date])
+  @@index([userId])
+  @@index([date])
+}
+
+model TrainerInvite {
+  id          String       @id @default(cuid())
+  inviteCode  String       @unique @default(cuid()) // Unique code for accepting invite
+  trainerId   String       // The trainer sending the invite
+  traineeEmail String      @db.VarChar(255) // Email of the trainee being invited
+  traineeId   String?      // Set when trainee accepts (if they register/login)
+  status      InviteStatus @default(PENDING)
+  message     String?      @db.Text // Optional message from trainer
+  expiresAt   DateTime     // When the invite expires
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  
+  // Relations
+  trainer     User         @relation("InvitesSent", fields: [trainerId], references: [id], onDelete: Cascade)
+  trainee     User?        @relation("InvitesReceived", fields: [traineeId], references: [id], onDelete: Cascade)
+  
+  @@index([trainerId])
+  @@index([traineeId])
+  @@index([traineeEmail])
+  @@index([inviteCode])
+  @@index([status])
+}
+
+enum InviteStatus {
+  PENDING
+  ACCEPTED
+  REJECTED
+  EXPIRED
+  CANCELLED
+}
+
+enum UserRole {
+  TRAINER
+  TRAINEE
+  ADMIN
+}

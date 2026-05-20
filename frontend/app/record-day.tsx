@@ -51,20 +51,28 @@ export default function RecordDay() {
       });
 
       if (response.ok) {
-        const data = await response.json();
-        if (data) {
+        const text = await response.text();
+        const data = text ? JSON.parse(text) : null;
+        if (data && Object.keys(data).length > 0) {
           setWeight(data.weight?.toString() || "");
           setCalories(data.calorieIntake?.toString() || "");
           setProtein(data.proteinIntake?.toString() || "");
         } else {
-          // No data for this date, clear inputs
           setWeight("");
           setCalories("");
           setProtein("");
         }
+      } else {
+        // Non-ok response (e.g. 404) — just clear the fields silently
+        setWeight("");
+        setCalories("");
+        setProtein("");
       }
     } catch (error) {
-      console.error("Error fetching day data:", error);
+      // Silently clear fields — this is expected on dates with no data
+      setWeight("");
+      setCalories("");
+      setProtein("");
     } finally {
       setFetching(false);
     }

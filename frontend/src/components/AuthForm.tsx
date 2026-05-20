@@ -13,6 +13,7 @@ export default function AuthForm({ mode, onSuccess }: Props) {
   const router = useRouter();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
+  const [confirmEmail, setConfirmEmail] = useState("");
   const [password, setPassword] = useState("");
   const [phone, setPhone] = useState("");
   const [loading, setLoading] = useState(false);
@@ -31,17 +32,40 @@ export default function AuthForm({ mode, onSuccess }: Props) {
     setError(null);
     setSuccessMessage(null);
     setLoading(true);
+
+    if (mode === "register") {
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+      if (!emailRegex.test(email.trim())) {
+        setError("Please enter a valid email address.");
+        setLoading(false);
+        return;
+      }
+      if (email.trim().toLowerCase() !== confirmEmail.trim().toLowerCase()) {
+        setError("Email addresses do not match. Please check and try again.");
+        setLoading(false);
+        return;
+      }
+    }
+
     try {
       if (mode === "login") {
         await login(email.trim(), password);
         onSuccess && onSuccess();
       } else {
         const result = await register(name.trim(), email.trim(), password, phone.trim());
-        // Show success message for registration
-        setSuccessMessage("Registration successful! Please check your email to verify your account before logging in.");
+        if (result.emailSent === false) {
+          setSuccessMessage(
+            "Account created, but we couldn't send the verification email. " +
+            "Please double-check that your email address is correct, then use " +
+            "\"Resend verification code\" below to try again."
+          );
+        } else {
+          setSuccessMessage("Registration successful! Please check your email to verify your account before logging in.");
+        }
         // Clear form
         setName("");
         setEmail("");
+        setConfirmEmail("");
         setPassword("");
         setPhone("");
       }
@@ -84,7 +108,7 @@ export default function AuthForm({ mode, onSuccess }: Props) {
 
       const data = await res.json();
       
-      if (!res.ok || !data.success) {
+      if (!res.ok) {
         throw new Error(data.message || "Failed to resend verification code");
       }
 
@@ -114,7 +138,7 @@ export default function AuthForm({ mode, onSuccess }: Props) {
 
       const data = await res.json();
       
-      if (!res.ok || !data.success) {
+      if (!res.ok) {
         throw new Error(data.message || "Invalid verification code");
       }
 
@@ -199,8 +223,15 @@ export default function AuthForm({ mode, onSuccess }: Props) {
 
           <View style={styles.fieldGroup}>
             <Text style={styles.label}>Email Address</Text>
-            <TextInput placeholder="" value={email} onChangeText={setEmail} style={styles.input} keyboardType="email-address" autoCapitalize="none" />
+            <TextInput placeholder="" value={email} onChangeText={setEmail} style={styles.input} keyboardType="email-address" autoCapitalize="none" autoCorrect={false} />
           </View>
+
+          {mode === "register" && (
+            <View style={styles.fieldGroup}>
+              <Text style={styles.label}>Confirm Email Address</Text>
+              <TextInput placeholder="" value={confirmEmail} onChangeText={setConfirmEmail} style={styles.input} keyboardType="email-address" autoCapitalize="none" autoCorrect={false} />
+            </View>
+          )}
 
           <View style={styles.fieldGroup}>
             <Text style={styles.label}>Password</Text>

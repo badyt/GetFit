@@ -36,7 +36,7 @@ export default function VerifyEmail() {
 
       const data = await res.json();
 
-      if (!res.ok || !data.success) {
+      if (!res.ok) {
         throw new Error(data.message || "Verification failed");
       }
 

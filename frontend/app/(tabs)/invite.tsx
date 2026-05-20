@@ -7,10 +7,13 @@ export default function Invite() {
   const token = useAuthStore((s) => s.token);
   const role = useAuthStore((s) => s.user?.role);
   const [email, setEmail] = useState("");
+  const [confirmEmail, setConfirmEmail] = useState("");
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
+
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 
   const handleSendInvite = async () => {
     setError(null);
@@ -26,6 +29,16 @@ export default function Invite() {
       return;
     }
 
+    if (!emailRegex.test(email.trim())) {
+      setError("Please enter a valid email address.");
+      return;
+    }
+
+    if (email.trim().toLowerCase() !== confirmEmail.trim().toLowerCase()) {
+      setError("Email addresses do not match. Please check and try again.");
+      return;
+    }
+
     if (!token) {
       setError("You are not authenticated.");
       return;
@@ -33,7 +46,7 @@ export default function Invite() {
 
     setLoading(true);
     try {
-      const res = await fetch(`${BASE_URL}/trainer/invites`, {
+      const res = await fetch(`${BASE_URL}/trainer/invite`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -43,12 +56,13 @@ export default function Invite() {
       });
 
       const data = await res.json();
-      if (!res.ok || !data.success) {
+      if (!res.ok) {
         throw new Error(data.message || "Failed to send invite");
       }
 
       setSuccess(data.message || `Invite sent to ${email.trim()}`);
       setEmail("");
+      setConfirmEmail("");
       setMessage("");
     } catch (err: any) {
       setError(err.message || "Something went wrong");
@@ -70,6 +84,19 @@ export default function Invite() {
           value={email}
           onChangeText={setEmail}
           autoCapitalize="none"
+          autoCorrect={false}
+          keyboardType="email-address"
+          editable={!loading}
+        />
+
+        <Text style={styles.label}>Confirm Trainee Email</Text>
+        <TextInput
+          style={styles.input}
+          placeholder="Re-enter email to confirm"
+          value={confirmEmail}
+          onChangeText={setConfirmEmail}
+          autoCapitalize="none"
+          autoCorrect={false}
           keyboardType="email-address"
           editable={!loading}
         />

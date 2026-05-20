@@ -109,7 +109,7 @@ export default function Home() {
         headers: { Authorization: `Bearer ${token}` },
       });
       const data = await res.json();
-      if (data.success && data.trainees) {
+      if (data.trainees) {
         const trainees = data.trainees;
         const stats: DashboardStats = {
           totalTrainees: trainees.length,
@@ -120,7 +120,7 @@ export default function Home() {
 
         // Get plan counts
         for (const trainee of trainees) {
-          const planRes = await fetch(`${BASE_URL}/trainer/trainee/${trainee.id}/plans`, {
+          const planRes = await fetch(`${BASE_URL}/trainer/trainees/${trainee.id}/plans`, {
             headers: { Authorization: `Bearer ${token}` },
           });
           const planData = await planRes.json();
@@ -144,7 +144,7 @@ export default function Home() {
         headers: { Authorization: `Bearer ${token}` },
       });
       const data = await res.json();
-      if (data.success && data.trainees) {
+      if (data.trainees) {
         setTopTrainees(data.trainees.slice(0, 5));
       }
     } catch (error) {
@@ -158,10 +158,10 @@ export default function Home() {
       const adjustedDay = dayOfWeek === 0 ? 6 : dayOfWeek - 1;
 
       const [mealRes, workoutRes] = await Promise.all([
-        fetch(`${BASE_URL}/plans/meal`, {
+        fetch(`${BASE_URL}/meal-plans/my`, {
           headers: { Authorization: `Bearer ${token}` },
         }),
-        fetch(`${BASE_URL}/plans/workout`, {
+        fetch(`${BASE_URL}/workout-plans/my`, {
           headers: { Authorization: `Bearer ${token}` },
         }),
       ]);
@@ -169,11 +169,12 @@ export default function Home() {
       const plan: TodaysPlan = {};
 
       if (mealRes.ok) {
-        const mealData = await mealRes.json();
-        const todayMeals = mealData.mealDays?.find((d: any) => d.dayOfWeek === adjustedDay);
+        const text = await mealRes.text();
+        const mealData = text ? JSON.parse(text) : null;
+        const todayMeals = mealData?.mealDays?.find((d: any) => d.dayOfWeek === adjustedDay);
         if (todayMeals?.meals?.length > 0) {
           plan.mealPlan = {
-            name: mealData.name,
+            name: mealData?.name,
             meals: todayMeals.meals.map((m: any) => ({
               foodName: m.food.name,
               quantity: m.quantity,
@@ -184,11 +185,12 @@ export default function Home() {
       }
 
       if (workoutRes.ok) {
-        const workoutData = await workoutRes.json();
-        const todayWorkout = workoutData.workoutDays?.find((d: any) => d.dayOfWeek === adjustedDay);
+        const text = await workoutRes.text();
+        const workoutData = text ? JSON.parse(text) : null;
+        const todayWorkout = workoutData?.workoutDays?.find((d: any) => d.dayOfWeek === adjustedDay);
         if (todayWorkout?.exercises?.length > 0) {
           plan.workoutPlan = {
-            name: workoutData.name,
+            name: workoutData?.name,
             exercises: todayWorkout.exercises.map((e: any) => ({
               exerciseName: e.exercise.name,
               sets: e.sets,
@@ -210,7 +212,7 @@ export default function Home() {
       const startDate = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split("T")[0];
 
       const res = await fetch(
-        `${BASE_URL}/history/range/dates?startDate=${startDate}&endDate=${endDate}`,
+        `${BASE_URL}/history/range?startDate=${startDate}&endDate=${endDate}`,
         {
           headers: { Authorization: `Bearer ${token}` },
         }
@@ -218,7 +220,7 @@ export default function Home() {
 
       if (res.ok) {
         const data = await res.json();
-        const records = data.history || [];
+        const records = Array.isArray(data) ? data : [];
         
         const weekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
         const thisWeekRecords = records.filter((r: any) => new Date(r.date) >= weekAgo);

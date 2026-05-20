@@ -40,11 +40,12 @@ export default function MealPlan() {
 
   const fetchMealPlan = async () => {
     try {
-      const response = await fetch(`${BASE_URL}/plans/meal`, {
+      const response = await fetch(`${BASE_URL}/meal-plans/my`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       if (response.ok) {
-        const data = await response.json();
+        const text = await response.text();
+        const data = text ? JSON.parse(text) : null;
         setMealPlan(data);
       }
     } catch (error) {

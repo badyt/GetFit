@@ -112,7 +112,7 @@ export default function EditWorkoutPlan() {
 
     setSaving(true);
     try {
-      const response = await fetch(`${BASE_URL}/trainer/trainee/${traineeId}/workout-plan`, {
+      const response = await fetch(`${BASE_URL}/trainer/trainees/${traineeId}/workout-plan`, {
         method: "PUT",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -120,7 +120,17 @@ export default function EditWorkoutPlan() {
         },
         body: JSON.stringify({
           name: workoutPlanName,
-          workoutDays: daysWithExercises,
+          workoutDays: daysWithExercises.map((day: any) => ({
+            dayOfWeek: day.dayOfWeek,
+            ...(day.description ? { description: day.description } : {}),
+            exercises: day.exercises.map(({ exerciseId, sets, reps, weight, restTime }: any) => ({
+              exerciseId,
+              sets,
+              reps,
+              ...(weight !== undefined ? { weight } : {}),
+              ...(restTime !== undefined ? { restTime } : {}),
+            })),
+          })),
         }),
       });
 

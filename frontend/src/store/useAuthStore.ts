@@ -61,7 +61,7 @@ export const useAuthStore = create<AuthState>()(
 
           const data = await res.json();
 
-          if (!res.ok || !data.success) {
+          if (!res.ok) {
             // Create error with code if available
             const error: any = new Error(data.message || "Login failed");
             if (data.code) {
@@ -98,7 +98,7 @@ export const useAuthStore = create<AuthState>()(
           clearTimeout(timeoutId);
 
           const data = await res.json();
-          if (!res.ok || !data.success) {
+          if (!res.ok) {
             throw new Error(data.message || "Registration failed");
           }
 
@@ -189,7 +189,7 @@ export const useAuthStore = create<AuthState>()(
 
           // If successful, update user data
           const data = await res.json();
-          if (data.success && data.user) {
+          if (data.user) {
             set(() => ({ user: data.user, isAuthenticated: true }));
           } else {
             // Invalid response, clear auth

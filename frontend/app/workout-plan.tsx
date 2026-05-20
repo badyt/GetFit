@@ -42,11 +42,12 @@ export default function WorkoutPlan() {
 
   const fetchWorkoutPlan = async () => {
     try {
-      const response = await fetch(`${BASE_URL}/plans/workout`, {
+      const response = await fetch(`${BASE_URL}/workout-plans/my`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       if (response.ok) {
-        const data = await response.json();
+        const text = await response.text();
+        const data = text ? JSON.parse(text) : null;
         setWorkoutPlan(data);
       }
     } catch (error) {

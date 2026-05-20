@@ -41,11 +41,12 @@ export default function MealDayDetail() {
 
   const fetchMealDay = async () => {
     try {
-      const response = await fetch(`${BASE_URL}/plans/meal/day/${dayIndex}`, {
+      const response = await fetch(`${BASE_URL}/meal-plans/day/${dayIndex}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       if (response.ok) {
-        const data = await response.json();
+        const text = await response.text();
+        const data = text ? JSON.parse(text) : null;
         setMealDay(data);
       }
     } catch (error) {

@@ -108,7 +108,7 @@ export default function EditMealPlan() {
 
     setSaving(true);
     try {
-      const response = await fetch(`${BASE_URL}/trainer/trainee/${traineeId}/meal-plan`, {
+      const response = await fetch(`${BASE_URL}/trainer/trainees/${traineeId}/meal-plan`, {
         method: "PUT",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -116,7 +116,15 @@ export default function EditMealPlan() {
         },
         body: JSON.stringify({
           name: mealPlanName,
-          mealDays: daysWithMeals,
+          mealDays: daysWithMeals.map((day: any) => ({
+            dayOfWeek: day.dayOfWeek,
+            meals: day.meals.map(({ foodId, quantity, mealTime, description }: any) => ({
+              foodId,
+              quantity,
+              mealTime,
+              ...(description ? { description } : {}),
+            })),
+          })),
         }),
       });
 

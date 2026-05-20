@@ -96,11 +96,11 @@ export default function ProgressHistoryChart({ userId, userName }: ProgressHisto
 
     try {
       setLoading(true);
-      // Only include userId in query if it's different from the current user (trainer viewing trainee)
+      // Trainer viewing a trainee uses a different route than a trainee viewing their own history
       const isViewingOtherUser = userId && userId !== currentUserId?.toString();
       const url = isViewingOtherUser
-        ? `${HISTORY_URL}/range/dates?startDate=${startDate}&endDate=${endDate}&userId=${userId}`
-        : `${HISTORY_URL}/range/dates?startDate=${startDate}&endDate=${endDate}`;
+        ? `${HISTORY_URL}/trainee/${userId}/range?startDate=${startDate}&endDate=${endDate}`
+        : `${HISTORY_URL}/range?startDate=${startDate}&endDate=${endDate}`;
       
       const response = await fetch(url, {
         headers: {
@@ -110,13 +110,14 @@ export default function ProgressHistoryChart({ userId, userName }: ProgressHisto
 
       if (response.ok) {
         const data = await response.json();
-        setHistoryData(data);
+        setHistoryData(Array.isArray(data) ? data : []);
       } else {
-        const error = await response.json();
+        const text = await response.text();
+        const error = text ? JSON.parse(text) : {};
         setAlert({
           visible: true,
           type: "error",
-          message: error.error || "Failed to fetch history",
+          message: error.message || error.error || "Failed to fetch history",
         });
       }
     } catch (error) {

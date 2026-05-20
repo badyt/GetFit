@@ -13,7 +13,9 @@ import {
   ScrollView,
   KeyboardAvoidingView,
   Platform,
+  Alert,
 } from "react-native";
+import * as ImagePicker from "expo-image-picker";
 import { Ionicons } from "@expo/vector-icons";
 import useAuthStore from "../../src/store/useAuthStore";
 import { ADMIN_URL, SERVER_BASE } from "../../src/constants/api";
@@ -41,7 +43,10 @@ export default function AdminFood() {
   const [formLoading, setFormLoading] = useState(false);
   const [form, setForm] = useState({ name: "", caloriesPer100g: "", proteinPer100g: "" });
   const [formErrors, setFormErrors] = useState({ name: "", caloriesPer100g: "", proteinPer100g: "" });
-  const [selectedImage, setSelectedImage] = useState<File | null>(null);
+  type ImageAsset =
+    | { platform: 'web'; file: File }
+    | { platform: 'mobile'; uri: string; name: string; type: string };
+  const [imageAsset, setImageAsset] = useState<ImageAsset | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
 
   // Action state
@@ -125,8 +130,12 @@ export default function AdminFood() {
       formData.append("name", name.trim());
       formData.append("caloriesPer100g", caloriesPer100g);
       formData.append("proteinPer100g", proteinPer100g);
-      if (selectedImage) {
-        formData.append("image", selectedImage);
+      if (imageAsset) {
+        if (imageAsset.platform === 'web') {
+          formData.append("image", imageAsset.file);
+        } else {
+          formData.append("image", { uri: imageAsset.uri, name: imageAsset.name, type: imageAsset.type } as any);
+        }
       }
 
       const res = await fetch(`${ADMIN_URL}/foods`, {
@@ -138,7 +147,7 @@ export default function AdminFood() {
       if (data.success) {
         setAlert({ visible: true, title: "Success", message: `"${data.data.name}" added successfully!`, type: "success" });
         setForm({ name: "", caloriesPer100g: "", proteinPer100g: "" });
-        setSelectedImage(null);
+        setImageAsset(null);
         setImagePreview(null);
         setShowForm(false);
         fetchFoods();
@@ -222,7 +231,7 @@ export default function AdminFood() {
     );
   };
 
-  const handlePickImage = () => {
+  const handlePickImage = async () => {
     if (Platform.OS === "web" && typeof document !== "undefined") {
       const input = document.createElement("input");
       input.type = "file";
@@ -230,13 +239,34 @@ export default function AdminFood() {
       input.onchange = (e: any) => {
         const file: File | undefined = e.target?.files?.[0];
         if (file) {
-          setSelectedImage(file);
+          setImageAsset({ platform: 'web', file });
           const reader = new FileReader();
           reader.onload = (ev) => setImagePreview(ev.target?.result as string);
           reader.readAsDataURL(file);
         }
       };
       input.click();
+    } else {
+      const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+      if (status !== "granted") {
+        Alert.alert("Permission Required", "Please allow access to your photo library to upload an image.");
+        return;
+      }
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        allowsEditing: true,
+        aspect: [1, 1],
+        quality: 0.8,
+      });
+      if (!result.canceled && result.assets[0]) {
+        const asset = result.assets[0];
+        const uriParts = asset.uri.split("/");
+        const filename = uriParts[uriParts.length - 1];
+        const ext = filename.split(".").pop()?.toLowerCase() || "jpg";
+        const mimeMap: Record<string, string> = { jpg: "image/jpeg", jpeg: "image/jpeg", png: "image/png", gif: "image/gif", webp: "image/webp" };
+        setImageAsset({ platform: 'mobile', uri: asset.uri, name: filename, type: mimeMap[ext] || "image/jpeg" });
+        setImagePreview(asset.uri);
+      }
     }
   };
 
@@ -334,7 +364,7 @@ export default function AdminFood() {
               {imagePreview && (
                 <Pressable
                   style={styles.removeImageBtn}
-                  onPress={() => { setSelectedImage(null); setImagePreview(null); }}
+                  onPress={() => { setImageAsset(null); setImagePreview(null); }}
                 >
                   <Ionicons name="close-circle" size={16} color="#ef4444" />
                   <Text style={styles.removeImageText}>Remove image</Text>
@@ -380,7 +410,7 @@ export default function AdminFood() {
                 onPress={() => {
                   setShowForm(false);
                   setFormErrors({ name: "", caloriesPer100g: "", proteinPer100g: "" });
-                  setSelectedImage(null);
+                  setImageAsset(null);
                   setImagePreview(null);
                 }}
               >

@@ -53,7 +53,7 @@ export default function TraineeDetail() {
 
   const fetchPlanSummary = async () => {
     try {
-      const response = await fetch(`${BASE_URL}/trainer/trainee/${traineeId}/plans`, {
+      const response = await fetch(`${BASE_URL}/trainer/trainees/${traineeId}/plans`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       if (response.ok) {
@@ -71,7 +71,7 @@ export default function TraineeDetail() {
 
   const loadMealPlanToStore = async () => {
     try {
-      const response = await fetch(`${BASE_URL}/trainer/trainee/${traineeId}/meal-plan`, {
+      const response = await fetch(`${BASE_URL}/trainer/trainees/${traineeId}/meal-plan`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       if (response.ok) {
@@ -100,7 +100,7 @@ export default function TraineeDetail() {
 
   const loadWorkoutPlanToStore = async () => {
     try {
-      const response = await fetch(`${BASE_URL}/trainer/trainee/${traineeId}/workout-plan`, {
+      const response = await fetch(`${BASE_URL}/trainer/trainees/${traineeId}/workout-plan`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       if (response.ok) {
@@ -132,7 +132,7 @@ export default function TraineeDetail() {
   const handleDeleteMealPlan = async () => {
     setDeleteDialog({ visible: false, type: null });
     try {
-      const response = await fetch(`${BASE_URL}/trainer/trainee/${traineeId}/meal-plan`, {
+      const response = await fetch(`${BASE_URL}/trainer/trainees/${traineeId}/meal-plan`, {
         method: "DELETE",
         headers: { Authorization: `Bearer ${token}` },
       });
@@ -172,7 +172,7 @@ export default function TraineeDetail() {
   const handleDeleteWorkoutPlan = async () => {
     setDeleteDialog({ visible: false, type: null });
     try {
-      const response = await fetch(`${BASE_URL}/trainer/trainee/${traineeId}/workout-plan`, {
+      const response = await fetch(`${BASE_URL}/trainer/trainees/${traineeId}/workout-plan`, {
         method: "DELETE",
         headers: { Authorization: `Bearer ${token}` },
       });

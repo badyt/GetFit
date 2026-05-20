@@ -3,7 +3,7 @@ import { View, Text, Pressable, StyleSheet, ActivityIndicator, TextInput, Image,
 import { useRouter } from "expo-router";
 import * as ImagePicker from 'expo-image-picker';
 import useAuthStore from "../../src/store/useAuthStore";
-import { BASE_URL, UPLOAD_URL, SERVER_BASE } from "../../src/constants/api";
+import { BASE_URL, SERVER_BASE } from "../../src/constants/api";
 
 export default function Profile() {
   const router = useRouter();
@@ -77,7 +77,7 @@ export default function Profile() {
       const formData = new FormData();
       formData.append('profilePicture', file);
 
-      const response = await fetch(`${UPLOAD_URL}/profile-picture`, {
+      const response = await fetch(`${BASE_URL}/users/profile-picture`, {
         method: 'POST',
         headers: {
           Authorization: `Bearer ${token}`,
@@ -135,7 +135,7 @@ export default function Profile() {
         type: type,
       });
 
-      const response = await fetch(`${UPLOAD_URL}/profile-picture`, {
+      const response = await fetch(`${BASE_URL}/users/profile-picture`, {
         method: 'POST',
         headers: {
           Authorization: `Bearer ${token}`,
@@ -177,7 +177,7 @@ export default function Profile() {
           onPress: async () => {
             setUploadingImage(true);
             try {
-              const response = await fetch(`${UPLOAD_URL}/profile-picture`, {
+              const response = await fetch(`${BASE_URL}/users/profile-picture`, {
                 method: 'DELETE',
                 headers: {
                   Authorization: `Bearer ${token}`,
@@ -216,8 +216,8 @@ export default function Profile() {
     }
 
     try {
-      const response = await fetch(`${BASE_URL}/user/update-name`, {
-        method: 'PUT',
+      const response = await fetch(`${BASE_URL}/users/name`, {
+        method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${token}`,
@@ -276,7 +276,7 @@ export default function Profile() {
       });
 
       const data = await res.json();
-      if (!res.ok || !data.success) {
+      if (!res.ok) {
         throw new Error(data.message || "Failed to join trainer");
       }
 
