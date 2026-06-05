@@ -3,6 +3,8 @@ import { useRouter } from "expo-router";
 import { useEffect, useState } from "react";
 import useAuthStore from "../src/store/useAuthStore";
 import { BASE_URL } from "../src/constants/api";
+import ScreenHeader from "../src/components/ScreenHeader";
+import { colors, spacing, radius, shadow } from "../src/theme";
 
 const DAYS = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
 
@@ -79,15 +81,7 @@ export default function MealPlan() {
 
   return (
     <View style={styles.container}>
-      <View style={styles.header}>
-        <Pressable style={styles.backButton} onPress={() => router.back()}>
-          <Text style={styles.backArrow}>←</Text>
-        </Pressable>
-        <Text style={styles.title}>Meal Plan</Text>
-        <Text style={styles.subtitle}>
-          {mealPlan ? mealPlan.name : "No meal plan assigned"}
-        </Text>
-      </View>
+      <ScreenHeader title="Meal Plan" onBack={() => router.back()} accent={colors.secondary} />
 
       <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
         {!mealPlan ? (
@@ -135,58 +129,33 @@ export default function MealPlan() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#f8fafc",
+    backgroundColor: colors.background,
   },
   centerContainer: {
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: "#f8fafc",
+    backgroundColor: colors.background,
   },
   loadingText: {
-    marginTop: 12,
-    color: "#6b7280",
+    marginTop: spacing.md,
+    color: colors.textSecondary,
     fontSize: 16,
-  },
-  header: {
-    padding: 20,
-    paddingBottom: 12,
-  },
-  backButton: {
-    padding: 8,
-    borderRadius: 8,
-    backgroundColor: "#f3f4f6",
-    alignSelf: "flex-start",
-    marginBottom: 16,
-  },
-  backArrow: {
-    fontSize: 24,
-    color: "#f59e0b",
-    fontWeight: "bold",
-  },
-  title: {
-    fontSize: 28,
-    fontWeight: "700",
-    color: "#111827",
-  },
-  subtitle: {
-    fontSize: 16,
-    color: "#6b7280",
-    marginTop: 4,
   },
   scrollView: {
     flex: 1,
   },
   daysContainer: {
-    padding: 20,
-    gap: 12,
+    padding: spacing.xl,
+    gap: spacing.md,
   },
   dayCard: {
-    backgroundColor: "#ffffff",
-    borderRadius: 12,
-    padding: 16,
+    backgroundColor: colors.surface,
+    borderRadius: radius.md,
+    padding: spacing.lg,
     borderWidth: 1,
-    borderColor: "#e5e7eb",
+    borderColor: colors.border,
+    ...shadow.sm,
   },
   dayCardEmpty: {
     opacity: 0.6,
@@ -195,33 +164,33 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    marginBottom: 8,
+    marginBottom: spacing.sm,
   },
   dayName: {
     fontSize: 18,
     fontWeight: "600",
-    color: "#111827",
+    color: colors.text,
   },
   arrowIcon: {
     fontSize: 20,
-    color: "#f59e0b",
+    color: colors.secondary,
   },
   dayInfo: {
     flexDirection: "row",
-    gap: 16,
+    gap: spacing.lg,
   },
   mealCount: {
     fontSize: 14,
-    color: "#6b7280",
+    color: colors.textSecondary,
   },
   calories: {
     fontSize: 14,
-    color: "#f59e0b",
+    color: colors.secondary,
     fontWeight: "600",
   },
   emptyDayText: {
     fontSize: 14,
-    color: "#9ca3af",
+    color: colors.textTertiary,
     fontStyle: "italic",
   },
   emptyContainer: {
@@ -231,18 +200,18 @@ const styles = StyleSheet.create({
     marginTop: 60,
   },
   emptyIcon: {
-    fontSize: 64,
-    marginBottom: 16,
+    fontSize: 56,
+    marginBottom: spacing.lg,
   },
   emptyTitle: {
     fontSize: 20,
     fontWeight: "700",
-    color: "#111827",
-    marginBottom: 8,
+    color: colors.text,
+    marginBottom: spacing.sm,
   },
   emptyText: {
-    fontSize: 16,
-    color: "#6b7280",
+    fontSize: 14,
+    color: colors.textSecondary,
     textAlign: "center",
   },
 });

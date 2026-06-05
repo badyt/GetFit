@@ -2,6 +2,7 @@ import { useState } from "react";
 import { View, Text, TextInput, Pressable, StyleSheet, ActivityIndicator } from "react-native";
 import useAuthStore from "../../src/store/useAuthStore";
 import { BASE_URL } from "../../src/constants/api";
+import { colors, spacing, radius, shadow } from "../../src/theme";
 
 export default function Invite() {
   const token = useAuthStore((s) => s.token);
@@ -125,45 +126,42 @@ export default function Invite() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 20,
-    backgroundColor: "#f8fafc",
+    padding: spacing.xl,
+    backgroundColor: colors.background,
   },
   title: {
     fontSize: 24,
     fontWeight: "700",
-    color: "#111827",
+    color: colors.text,
   },
   subtitle: {
-    marginTop: 6,
-    marginBottom: 16,
-    color: "#6b7280",
+    marginTop: spacing.xs,
+    marginBottom: spacing.lg,
+    color: colors.textSecondary,
   },
   card: {
-    backgroundColor: "#fff",
-    borderRadius: 14,
-    padding: 16,
-    marginBottom: 16,
-    shadowColor: "#000",
-    shadowOpacity: 0.06,
-    shadowRadius: 8,
-    elevation: 2,
+    backgroundColor: colors.surface,
+    borderRadius: radius.md,
+    padding: spacing.lg,
+    marginBottom: spacing.lg,
+    ...shadow.sm,
   },
   label: {
     fontSize: 14,
     fontWeight: "600",
-    color: "#374151",
-    marginBottom: 6,
+    color: colors.textSecondary,
+    marginBottom: spacing.xs,
   },
   input: {
     borderWidth: 1,
-    borderColor: "#e5e7eb",
-    backgroundColor: "#fff",
-    borderRadius: 10,
-    paddingHorizontal: 12,
+    borderColor: colors.border,
+    backgroundColor: colors.surface,
+    borderRadius: radius.sm,
+    paddingHorizontal: spacing.md,
     paddingVertical: 10,
     fontSize: 16,
-    color: "#111827",
-    marginBottom: 12,
+    color: colors.text,
+    marginBottom: spacing.md,
   },
   textArea: {
     minHeight: 80,
@@ -171,21 +169,21 @@ const styles = StyleSheet.create({
   },
   primaryButton: {
     height: 48,
-    borderRadius: 10,
+    borderRadius: radius.sm,
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: "#0a84ff",
+    backgroundColor: colors.primary,
   },
   primaryText: {
-    color: "#fff",
+    color: colors.surface,
     fontWeight: "600",
   },
   error: {
-    color: "#b00020",
+    color: colors.danger,
     marginBottom: 10,
   },
   success: {
-    color: "#065f46",
+    color: colors.success,
     marginBottom: 10,
     fontWeight: "600",
   },

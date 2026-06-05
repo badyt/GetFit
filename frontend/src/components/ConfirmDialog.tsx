@@ -1,4 +1,5 @@
 import { View, Text, Pressable, StyleSheet, Modal } from "react-native";
+import { colors, spacing, radius, shadow } from "../theme";
 
 type ConfirmDialogProps = {
   visible: boolean;
@@ -47,57 +48,53 @@ export default function ConfirmDialog({
 const styles = StyleSheet.create({
   overlay: {
     flex: 1,
-    backgroundColor: "rgba(0, 0, 0, 0.5)",
+    backgroundColor: colors.overlay,
     justifyContent: "center",
     alignItems: "center",
   },
   dialogContainer: {
-    backgroundColor: "#fff",
-    borderRadius: 12,
+    backgroundColor: colors.surface,
+    borderRadius: radius.md,
     width: "85%",
     maxWidth: 400,
-    padding: 24,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.25,
-    shadowRadius: 4,
-    elevation: 5,
+    padding: spacing.xxl,
+    ...shadow.lg,
   },
   title: {
     fontSize: 20,
     fontWeight: "bold",
-    color: "#1f2937",
-    marginBottom: 12,
+    color: colors.text,
+    marginBottom: spacing.md,
   },
   message: {
     fontSize: 16,
-    color: "#6b7280",
-    marginBottom: 24,
+    color: colors.textSecondary,
+    marginBottom: spacing.xxl,
     lineHeight: 22,
   },
   buttonRow: {
     flexDirection: "row",
-    gap: 12,
+    gap: spacing.md,
   },
   button: {
     flex: 1,
     padding: 14,
-    borderRadius: 8,
+    borderRadius: radius.sm,
     alignItems: "center",
   },
   cancelButton: {
-    backgroundColor: "#f3f4f6",
+    backgroundColor: colors.borderLight,
   },
   confirmButton: {
-    backgroundColor: "#ef4444",
+    backgroundColor: colors.danger,
   },
   cancelButtonText: {
-    color: "#374151",
+    color: colors.textSecondary,
     fontSize: 16,
     fontWeight: "600",
   },
   confirmButtonText: {
-    color: "#fff",
+    color: colors.surface,
     fontSize: 16,
     fontWeight: "600",
   },

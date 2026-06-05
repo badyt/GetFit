@@ -4,6 +4,8 @@ import { useEffect, useState } from "react";
 import useAuthStore from "../src/store/useAuthStore";
 import { BASE_URL } from "../src/constants/api";
 import { getFoodImage } from "../src/utils/imageMapper";
+import ScreenHeader from "../src/components/ScreenHeader";
+import { colors, spacing, radius, shadow } from "../src/theme";
 
 type Food = {
   id: string;
@@ -57,7 +59,6 @@ export default function SelectFood() {
   };
 
   const selectFood = (food: Food) => {
-    // Navigate back with the selected food data
     const params = new URLSearchParams({
       dayIndex: dayIndex as string,
       traineeId: traineeId as string,
@@ -89,7 +90,7 @@ export default function SelectFood() {
   if (loading) {
     return (
       <View style={styles.centerContainer}>
-        <ActivityIndicator size="large" color="#f59e0b" />
+        <ActivityIndicator size="large" color={colors.secondary} />
         <Text style={styles.loadingText}>Loading foods...</Text>
       </View>
     );
@@ -97,24 +98,19 @@ export default function SelectFood() {
 
   return (
     <View style={styles.container}>
-      <View style={styles.header}>
-        <View style={styles.topBar}>
-          <Pressable style={styles.backButton} onPress={() => router.back()}>
-            <Text style={styles.backArrow}>←</Text>
-          </Pressable>
-          <View style={styles.searchContainer}>
-            <Text style={styles.searchIcon}>🔍</Text>
-            <TextInput
-              style={styles.searchInput}
-              placeholder="Search foods..."
-              placeholderTextColor="#9ca3af"
-              value={searchQuery}
-              onChangeText={handleSearch}
-            />
-          </View>
-        </View>
-        <Text style={styles.title}>Select Food</Text>
-        <Text style={styles.subtitle}>{filteredFoods.length} foods available</Text>
+      <ScreenHeader
+        title={`Select Food (${filteredFoods.length})`}
+        onBack={() => router.back()}
+        accent={colors.secondary}
+      />
+      <View style={styles.searchBar}>
+        <TextInput
+          style={styles.searchInput}
+          placeholder="Search foods..."
+          placeholderTextColor={colors.textTertiary}
+          value={searchQuery}
+          onChangeText={handleSearch}
+        />
       </View>
 
       <FlatList
@@ -131,93 +127,61 @@ export default function SelectFood() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#f8fafc",
+    backgroundColor: colors.background,
   },
   centerContainer: {
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: "#f8fafc",
+    backgroundColor: colors.background,
   },
   loadingText: {
-    marginTop: 12,
-    color: "#6b7280",
+    marginTop: spacing.md,
+    color: colors.textSecondary,
     fontSize: 16,
   },
-  header: {
-    padding: 20,
-    paddingBottom: 12,
-  },
-  topBar: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 12,
-    marginBottom: 16,
-  },
-  backButton: {
-    padding: 8,
-    borderRadius: 8,
-    backgroundColor: "#f3f4f6",
-  },
-  backArrow: {
-    fontSize: 24,
-    color: "#f59e0b",
-    fontWeight: "bold",
-  },
-  searchContainer: {
-    flex: 1,
-    flexDirection: "row",
-    alignItems: "center",
-    backgroundColor: "#f3f4f6",
-    borderRadius: 12,
-    paddingHorizontal: 12,
-    height: 44,
-  },
-  searchIcon: {
-    fontSize: 18,
-    marginRight: 8,
+  searchBar: {
+    paddingHorizontal: spacing.xl,
+    paddingVertical: spacing.md,
+    backgroundColor: colors.surface,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.border,
   },
   searchInput: {
-    flex: 1,
-    fontSize: 16,
-    color: "#111827",
-  },
-  title: {
-    fontSize: 28,
-    fontWeight: "700",
-    color: "#111827",
-  },
-  subtitle: {
-    fontSize: 14,
-    color: "#6b7280",
-    marginTop: 4,
+    height: 44,
+    backgroundColor: colors.borderLight,
+    borderRadius: radius.sm,
+    paddingHorizontal: spacing.md,
+    fontSize: 15,
+    color: colors.text,
   },
   listContainer: {
-    padding: 20,
-    gap: 12,
+    padding: spacing.xl,
+    gap: spacing.md,
   },
   foodCard: {
-    backgroundColor: "#fff",
-    borderRadius: 12,
-    padding: 16,
+    backgroundColor: colors.surface,
+    borderRadius: radius.md,
+    padding: spacing.lg,
     flexDirection: "row",
     alignItems: "center",
     borderWidth: 1,
-    borderColor: "#e5e7eb",
-    gap: 12,
+    borderColor: colors.border,
+    gap: spacing.md,
+    ...shadow.sm,
   },
   foodImage: {
-    width: 56,
-    height: 56,
-    borderRadius: 8,
+    width: 52,
+    height: 52,
+    borderRadius: radius.sm,
   },
   foodInfo: {
     flex: 1,
   },
   foodName: {
-    fontSize: 16,
+    fontSize: 15,
     fontWeight: "600",
-    color: "#111827",
+    color: colors.text,
     marginBottom: 4,
   },
   nutritionRow: {
@@ -227,19 +191,19 @@ const styles = StyleSheet.create({
   },
   nutritionText: {
     fontSize: 13,
-    color: "#f59e0b",
+    color: colors.secondary,
   },
   nutritionDot: {
     fontSize: 13,
-    color: "#d1d5db",
+    color: colors.border,
   },
   nutritionSubtext: {
     fontSize: 12,
-    color: "#9ca3af",
+    color: colors.textTertiary,
   },
   selectIcon: {
-    fontSize: 24,
-    color: "#f59e0b",
+    fontSize: 22,
+    color: colors.secondary,
     fontWeight: "700",
   },
 });

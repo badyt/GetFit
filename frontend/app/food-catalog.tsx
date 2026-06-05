@@ -3,6 +3,8 @@ import { View, Text, FlatList, StyleSheet, ActivityIndicator, Image, Pressable, 
 import { useRouter } from "expo-router";
 import { BASE_URL } from "../src/constants/api";
 import { getFoodImage } from "../src/utils/imageMapper";
+import ScreenHeader from "../src/components/ScreenHeader";
+import { colors, spacing, radius, shadow } from "../src/theme";
 
 interface Food {
   id: string;
@@ -111,26 +113,19 @@ export default function FoodCatalog() {
 
   return (
     <View style={styles.container}>
-      <View style={styles.header}>
-        <View style={styles.topBar}>
-          <Pressable style={styles.backButton} onPress={() => router.back()}>
-            <Text style={styles.backArrow}>←</Text>
-          </Pressable>
-          <View style={styles.searchContainer}>
-            <Text style={styles.searchIcon}>🔍</Text>
-            <TextInput
-              style={styles.searchInput}
-              placeholder="Search foods..."
-              placeholderTextColor="#9ca3af"
-              value={searchQuery}
-              onChangeText={handleSearch}
-            />
-          </View>
-        </View>
-        <Text style={styles.title}>Food Catalog</Text>
-        <Text style={styles.subtitle}>
-          {filteredFoods.length} of {foods.length} items
-        </Text>
+      <ScreenHeader
+        title={`Food Catalog (${filteredFoods.length})`}
+        onBack={() => router.back()}
+        accent={colors.success}
+      />
+      <View style={styles.searchBar}>
+        <TextInput
+          style={styles.searchInput}
+          placeholder="Search foods..."
+          placeholderTextColor={colors.textTertiary}
+          value={searchQuery}
+          onChangeText={handleSearch}
+        />
       </View>
       <FlatList
         data={filteredFoods}
@@ -146,91 +141,55 @@ export default function FoodCatalog() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#f8fafc",
+    backgroundColor: colors.background,
   },
   centerContainer: {
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: "#f8fafc",
+    backgroundColor: colors.background,
   },
   loadingText: {
-    marginTop: 12,
-    color: "#6b7280",
+    marginTop: spacing.md,
+    color: colors.textSecondary,
     fontSize: 16,
   },
   errorText: {
-    color: "#ef4444",
+    color: colors.danger,
     fontSize: 16,
     textAlign: "center",
-    paddingHorizontal: 20,
+    paddingHorizontal: spacing.xl,
   },
-  header: {
-    padding: 20,
-    paddingBottom: 12,
-  },
-  topBar: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 12,
-    marginBottom: 16,
-  },
-  backButton: {
-    padding: 8,
-    borderRadius: 8,
-    backgroundColor: '#f3f4f6',
-  },
-  backArrow: {
-    fontSize: 24,
-    color: '#10b981',
-    fontWeight: 'bold',
-  },
-  searchContainer: {
-    flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#f3f4f6',
-    borderRadius: 12,
-    paddingHorizontal: 12,
-    height: 44,
-  },
-  searchIcon: {
-    fontSize: 18,
-    marginRight: 8,
+  searchBar: {
+    paddingHorizontal: spacing.xl,
+    paddingVertical: spacing.md,
+    backgroundColor: colors.surface,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.border,
   },
   searchInput: {
-    flex: 1,
-    fontSize: 16,
-    color: '#111827',
-  },
-  title: {
-    fontSize: 28,
-    fontWeight: "700",
-    color: "#111827",
-  },
-  subtitle: {
-    fontSize: 14,
-    color: "#6b7280",
-    marginTop: 4,
+    height: 44,
+    backgroundColor: colors.borderLight,
+    borderRadius: radius.sm,
+    paddingHorizontal: spacing.md,
+    fontSize: 15,
+    color: colors.text,
   },
   listContent: {
-    padding: 16,
-    gap: 12,
+    padding: spacing.lg,
+    gap: spacing.md,
   },
   foodCard: {
-    backgroundColor: "#fff",
-    borderRadius: 16,
+    backgroundColor: colors.surface,
+    borderRadius: radius.md,
     overflow: "hidden",
-    shadowColor: "#000",
-    shadowOpacity: 0.08,
-    shadowRadius: 12,
-    elevation: 3,
-    marginBottom: 12,
+    ...shadow.md,
+    marginBottom: spacing.md,
   },
   imageContainer: {
     width: "100%",
     height: 180,
-    backgroundColor: "#f3f4f6",
+    backgroundColor: colors.borderLight,
   },
   foodImage: {
     width: "100%",
@@ -241,27 +200,27 @@ const styles = StyleSheet.create({
     height: "100%",
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: "#e5e7eb",
+    backgroundColor: colors.border,
   },
   placeholderText: {
-    fontSize: 64,
+    fontSize: 56,
   },
   foodInfo: {
-    padding: 16,
+    padding: spacing.lg,
   },
   foodName: {
-    fontSize: 20,
+    fontSize: 18,
     fontWeight: "700",
-    color: "#111827",
-    marginBottom: 12,
+    color: colors.text,
+    marginBottom: spacing.md,
   },
   nutritionRow: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-around",
-    backgroundColor: "#f9fafb",
-    borderRadius: 12,
-    padding: 16,
+    backgroundColor: colors.borderLight,
+    borderRadius: radius.sm,
+    padding: spacing.lg,
   },
   nutritionItem: {
     alignItems: "center",
@@ -269,24 +228,24 @@ const styles = StyleSheet.create({
   },
   nutritionLabel: {
     fontSize: 12,
-    color: "#6b7280",
+    color: colors.textSecondary,
     marginBottom: 4,
     fontWeight: "600",
   },
   nutritionValue: {
-    fontSize: 22,
+    fontSize: 20,
     fontWeight: "700",
-    color: "#10b981",
+    color: colors.success,
     marginBottom: 2,
   },
   nutritionUnit: {
     fontSize: 11,
-    color: "#9ca3af",
+    color: colors.textTertiary,
   },
   divider: {
     width: 1,
     height: 40,
-    backgroundColor: "#e5e7eb",
-    marginHorizontal: 8,
+    backgroundColor: colors.border,
+    marginHorizontal: spacing.sm,
   },
 });

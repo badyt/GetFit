@@ -4,6 +4,8 @@ import { useEffect, useState } from "react";
 import useAuthStore from "../src/store/useAuthStore";
 import { BASE_URL } from "../src/constants/api";
 import { getExerciseImage } from "../src/utils/imageMapper";
+import ScreenHeader from "../src/components/ScreenHeader";
+import { colors, spacing, radius, shadow } from "../src/theme";
 
 const DAYS = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
 
@@ -60,7 +62,7 @@ export default function WorkoutDayDetail() {
   if (loading) {
     return (
       <View style={styles.centerContainer}>
-        <ActivityIndicator size="large" color="#6366f1" />
+        <ActivityIndicator size="large" color={colors.primary} />
         <Text style={styles.loadingText}>Loading workout details...</Text>
       </View>
     );
@@ -68,22 +70,12 @@ export default function WorkoutDayDetail() {
 
   return (
     <View style={styles.container}>
-      <View style={styles.header}>
-        <Pressable style={styles.backButton} onPress={() => router.back()}>
-          <Text style={styles.backArrow}>←</Text>
-        </Pressable>
-        <Text style={styles.title}>{DAYS[dayIndex]}</Text>
+      <ScreenHeader title={DAYS[dayIndex]} onBack={() => router.back()} />
+
+      <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
         {workoutDay?.description && (
           <Text style={styles.dayDescription}>{workoutDay.description}</Text>
         )}
-        <Text style={styles.subtitle}>
-          {workoutDay && workoutDay.exercises.length > 0
-            ? `${workoutDay.exercises.length} ${workoutDay.exercises.length === 1 ? "exercise" : "exercises"}`
-            : "No exercises planned"}
-        </Text>
-      </View>
-
-      <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
         {!workoutDay || workoutDay.exercises.length === 0 ? (
           <View style={styles.emptyContainer}>
             <Text style={styles.emptyIcon}>🏋️</Text>
@@ -156,81 +148,58 @@ export default function WorkoutDayDetail() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#f8fafc",
+    backgroundColor: colors.background,
   },
   centerContainer: {
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: "#f8fafc",
+    backgroundColor: colors.background,
   },
   loadingText: {
-    marginTop: 12,
-    color: "#6b7280",
+    marginTop: spacing.md,
+    color: colors.textSecondary,
     fontSize: 16,
-  },
-  header: {
-    padding: 20,
-    paddingBottom: 16,
-  },
-  backButton: {
-    padding: 8,
-    borderRadius: 8,
-    backgroundColor: "#f3f4f6",
-    alignSelf: "flex-start",
-    marginBottom: 16,
-  },
-  backArrow: {
-    fontSize: 24,
-    color: "#6366f1",
-    fontWeight: "bold",
-  },
-  title: {
-    fontSize: 28,
-    fontWeight: "700",
-    color: "#111827",
   },
   dayDescription: {
-    fontSize: 18,
+    fontSize: 15,
     fontWeight: "600",
-    color: "#6366f1",
-    marginTop: 4,
-  },
-  subtitle: {
-    fontSize: 16,
-    color: "#6b7280",
-    marginTop: 4,
+    color: colors.primary,
+    paddingHorizontal: spacing.xl,
+    paddingTop: spacing.lg,
+    paddingBottom: spacing.xs,
   },
   scrollView: {
     flex: 1,
   },
   exercisesContainer: {
-    padding: 20,
-    gap: 16,
+    padding: spacing.xl,
+    gap: spacing.lg,
   },
   exerciseCard: {
-    backgroundColor: "#ffffff",
-    borderRadius: 12,
-    padding: 16,
+    backgroundColor: colors.surface,
+    borderRadius: radius.md,
+    padding: spacing.lg,
     borderWidth: 1,
-    borderColor: "#e5e7eb",
+    borderColor: colors.border,
+    ...shadow.sm,
   },
   exerciseHeader: {
     flexDirection: "row",
     alignItems: "center",
-    marginBottom: 16,
-    gap: 12,
+    marginBottom: spacing.lg,
+    gap: spacing.md,
   },
   exerciseNumber: {
     fontSize: 18,
     fontWeight: "700",
-    color: "#6366f1",
+    color: colors.primary,
     width: 28,
   },
   exerciseImage: {
     width: 60,
     height: 60,
-    borderRadius: 8,
+    borderRadius: radius.sm,
   },
   exerciseInfo: {
     flex: 1,
@@ -238,17 +207,17 @@ const styles = StyleSheet.create({
   exerciseName: {
     fontSize: 16,
     fontWeight: "600",
-    color: "#111827",
+    color: colors.text,
     marginBottom: 4,
   },
   exerciseDescription: {
     fontSize: 13,
-    color: "#6b7280",
+    color: colors.textSecondary,
   },
   exerciseDetails: {
-    backgroundColor: "#f9fafb",
-    borderRadius: 8,
-    padding: 12,
+    backgroundColor: colors.borderLight,
+    borderRadius: radius.sm,
+    padding: spacing.md,
   },
   detailRow: {
     flexDirection: "row",
@@ -261,18 +230,18 @@ const styles = StyleSheet.create({
   },
   detailLabel: {
     fontSize: 12,
-    color: "#6b7280",
+    color: colors.textSecondary,
     marginBottom: 4,
   },
   detailValue: {
     fontSize: 16,
     fontWeight: "700",
-    color: "#111827",
+    color: colors.text,
   },
   detailDivider: {
     width: 1,
     height: 30,
-    backgroundColor: "#e5e7eb",
+    backgroundColor: colors.border,
   },
   emptyContainer: {
     alignItems: "center",
@@ -281,18 +250,18 @@ const styles = StyleSheet.create({
     marginTop: 60,
   },
   emptyIcon: {
-    fontSize: 64,
-    marginBottom: 16,
+    fontSize: 56,
+    marginBottom: spacing.lg,
   },
   emptyTitle: {
     fontSize: 20,
     fontWeight: "700",
-    color: "#111827",
-    marginBottom: 8,
+    color: colors.text,
+    marginBottom: spacing.sm,
   },
   emptyText: {
-    fontSize: 16,
-    color: "#6b7280",
+    fontSize: 14,
+    color: colors.textSecondary,
     textAlign: "center",
   },
 });

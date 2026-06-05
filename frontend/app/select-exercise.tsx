@@ -4,6 +4,8 @@ import { useEffect, useState } from "react";
 import useAuthStore from "../src/store/useAuthStore";
 import { BASE_URL } from "../src/constants/api";
 import { getExerciseImage } from "../src/utils/imageMapper";
+import ScreenHeader from "../src/components/ScreenHeader";
+import { colors, spacing, radius, shadow } from "../src/theme";
 
 type Exercise = {
   id: string;
@@ -102,7 +104,7 @@ export default function SelectExercise() {
   if (loading) {
     return (
       <View style={styles.centerContainer}>
-        <ActivityIndicator size="large" color="#6366f1" />
+        <ActivityIndicator size="large" color={colors.primary} />
         <Text style={styles.loadingText}>Loading exercises...</Text>
       </View>
     );
@@ -110,24 +112,15 @@ export default function SelectExercise() {
 
   return (
     <View style={styles.container}>
-      <View style={styles.header}>
-        <View style={styles.topBar}>
-          <Pressable style={styles.backButton} onPress={() => router.back()}>
-            <Text style={styles.backArrow}>←</Text>
-          </Pressable>
-          <View style={styles.searchContainer}>
-            <Text style={styles.searchIcon}>🔍</Text>
-            <TextInput
-              style={styles.searchInput}
-              placeholder="Search exercises..."
-              placeholderTextColor="#9ca3af"
-              value={searchQuery}
-              onChangeText={handleSearch}
-            />
-          </View>
-        </View>
-        <Text style={styles.title}>Select Exercise</Text>
-        <Text style={styles.subtitle}>{filteredCategories.length} categories</Text>
+      <ScreenHeader title="Select Exercise" onBack={() => router.back()} />
+      <View style={styles.searchBar}>
+        <TextInput
+          style={styles.searchInput}
+          placeholder="Search exercises..."
+          placeholderTextColor={colors.textTertiary}
+          value={searchQuery}
+          onChangeText={handleSearch}
+        />
       </View>
 
       <SectionList
@@ -150,113 +143,80 @@ export default function SelectExercise() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#f8fafc",
+    backgroundColor: colors.background,
   },
   centerContainer: {
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: "#f8fafc",
+    backgroundColor: colors.background,
   },
   loadingText: {
-    marginTop: 12,
-    color: "#6b7280",
+    marginTop: spacing.md,
+    color: colors.textSecondary,
     fontSize: 16,
   },
-  header: {
-    padding: 20,
-    paddingBottom: 12,
-    backgroundColor: "#f8fafc",
-  },
-  topBar: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 12,
-    marginBottom: 16,
-  },
-  backButton: {
-    padding: 8,
-    borderRadius: 8,
-    backgroundColor: "#f3f4f6",
-  },
-  backArrow: {
-    fontSize: 24,
-    color: "#6366f1",
-    fontWeight: "bold",
-  },
-  searchContainer: {
-    flex: 1,
-    flexDirection: "row",
-    alignItems: "center",
-    backgroundColor: "#f3f4f6",
-    borderRadius: 12,
-    paddingHorizontal: 12,
-    height: 44,
-  },
-  searchIcon: {
-    fontSize: 18,
-    marginRight: 8,
+  searchBar: {
+    paddingHorizontal: spacing.xl,
+    paddingVertical: spacing.md,
+    backgroundColor: colors.surface,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.border,
   },
   searchInput: {
-    flex: 1,
-    fontSize: 16,
-    color: "#111827",
-  },
-  title: {
-    fontSize: 28,
-    fontWeight: "700",
-    color: "#111827",
-  },
-  subtitle: {
-    fontSize: 14,
-    color: "#6b7280",
-    marginTop: 4,
+    height: 44,
+    backgroundColor: colors.borderLight,
+    borderRadius: radius.sm,
+    paddingHorizontal: spacing.md,
+    fontSize: 15,
+    color: colors.text,
   },
   listContainer: {
-    paddingHorizontal: 20,
-    paddingBottom: 20,
+    paddingHorizontal: spacing.xl,
+    paddingBottom: spacing.xl,
   },
   sectionHeader: {
-    backgroundColor: "#f8fafc",
-    paddingVertical: 12,
+    backgroundColor: colors.background,
+    paddingVertical: spacing.md,
   },
   sectionTitle: {
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: "700",
-    color: "#6366f1",
+    color: colors.primary,
   },
   exerciseCard: {
-    backgroundColor: "#fff",
-    borderRadius: 12,
-    padding: 16,
+    backgroundColor: colors.surface,
+    borderRadius: radius.md,
+    padding: spacing.lg,
     flexDirection: "row",
     alignItems: "center",
     borderWidth: 1,
-    borderColor: "#e5e7eb",
-    gap: 12,
-    marginBottom: 12,
+    borderColor: colors.border,
+    gap: spacing.md,
+    marginBottom: spacing.md,
+    ...shadow.sm,
   },
   exerciseImage: {
-    width: 56,
-    height: 56,
-    borderRadius: 8,
+    width: 52,
+    height: 52,
+    borderRadius: radius.sm,
   },
   exerciseInfo: {
     flex: 1,
   },
   exerciseName: {
-    fontSize: 16,
+    fontSize: 15,
     fontWeight: "600",
-    color: "#111827",
+    color: colors.text,
     marginBottom: 4,
   },
   exerciseDescription: {
     fontSize: 13,
-    color: "#6b7280",
+    color: colors.textSecondary,
   },
   selectIcon: {
-    fontSize: 24,
-    color: "#6366f1",
+    fontSize: 22,
+    color: colors.primary,
     fontWeight: "700",
   },
 });

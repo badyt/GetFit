@@ -1,4 +1,5 @@
 import { View, Text, Pressable, StyleSheet, Modal } from "react-native";
+import { colors, spacing, radius, shadow } from "../theme";
 
 type CustomAlertProps = {
   visible: boolean;
@@ -34,52 +35,48 @@ export default function CustomAlert({ visible, title, message, onClose, type = "
 const styles = StyleSheet.create({
   overlay: {
     flex: 1,
-    backgroundColor: "rgba(0, 0, 0, 0.5)",
+    backgroundColor: colors.overlay,
     justifyContent: "center",
     alignItems: "center",
   },
   alertContainer: {
-    backgroundColor: "#fff",
-    borderRadius: 12,
+    backgroundColor: colors.surface,
+    borderRadius: radius.md,
     width: "85%",
     maxWidth: 400,
     overflow: "hidden",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.25,
-    shadowRadius: 4,
-    elevation: 5,
+    ...shadow.lg,
   },
   header: {
-    padding: 16,
+    padding: spacing.lg,
     alignItems: "center",
   },
   successHeader: {
-    backgroundColor: "#10b981",
+    backgroundColor: colors.success,
   },
   errorHeader: {
-    backgroundColor: "#ef4444",
+    backgroundColor: colors.danger,
   },
   title: {
     fontSize: 18,
     fontWeight: "bold",
-    color: "#fff",
+    color: colors.surface,
   },
   message: {
     fontSize: 16,
-    color: "#374151",
-    padding: 20,
+    color: colors.text,
+    padding: spacing.xl,
     textAlign: "center",
   },
   button: {
-    backgroundColor: "#6366f1",
+    backgroundColor: colors.primary,
     padding: 14,
-    margin: 16,
-    borderRadius: 8,
+    margin: spacing.lg,
+    borderRadius: radius.sm,
     alignItems: "center",
   },
   buttonText: {
-    color: "#fff",
+    color: colors.surface,
     fontSize: 16,
     fontWeight: "600",
   },

@@ -1,5 +1,6 @@
 import { View, Text, Pressable, StyleSheet } from "react-native";
 import { useRouter } from "expo-router";
+import { colors, spacing, radius, shadow } from "../../src/theme";
 
 export default function Progress() {
   const router = useRouter();
@@ -39,51 +40,47 @@ export default function Progress() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 20,
-    backgroundColor: "#f8fafc",
+    padding: spacing.xl,
+    backgroundColor: colors.background,
   },
   title: {
     fontSize: 28,
     fontWeight: "700",
-    color: "#111827",
-    marginBottom: 8,
+    color: colors.text,
+    marginBottom: spacing.sm,
   },
   subtitle: {
     fontSize: 16,
-    color: "#6b7280",
-    marginBottom: 32,
+    color: colors.textSecondary,
+    marginBottom: spacing.xxxl,
   },
   buttonContainer: {
-    gap: 16,
+    gap: spacing.lg,
   },
   actionButton: {
-    borderRadius: 16,
-    padding: 24,
+    borderRadius: radius.lg,
+    padding: spacing.xxl,
     alignItems: "center",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.1,
-    shadowRadius: 12,
-    elevation: 4,
+    ...shadow.md,
   },
   recordButton: {
-    backgroundColor: "#dbeafe",
+    backgroundColor: colors.primaryLight,
   },
   chartButton: {
     backgroundColor: "#f3e8ff",
   },
   buttonIcon: {
     fontSize: 48,
-    marginBottom: 12,
+    marginBottom: spacing.md,
   },
   buttonTitle: {
     fontSize: 22,
     fontWeight: "700",
-    color: "#111827",
-    marginBottom: 6,
+    color: colors.text,
+    marginBottom: spacing.xs,
   },
   buttonSubtitle: {
     fontSize: 14,
-    color: "#6b7280",
+    color: colors.textSecondary,
   },
 });

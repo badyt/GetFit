@@ -3,6 +3,7 @@ import { View, Text, TouchableOpacity, StyleSheet, Keyboard, Pressable } from "r
 import { SafeAreaView as SafeAreaViewContext } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 import AuthForm from "../src/components/AuthForm";
+import { colors, radius, shadow } from "../src/theme";
 
 export default function AuthScreen() {
   const [mode, setMode] = useState<"login" | "register">("login");
@@ -36,14 +37,14 @@ export default function AuthScreen() {
 }
 
 const styles = StyleSheet.create({
-  safe: { flex: 1, backgroundColor: "#f6f8fb" },
+  safe: { flex: 1, backgroundColor: colors.background },
   container: { flex: 1, padding: 20, alignItems: "center" },
-  brand: { fontSize: 40, fontWeight: "800", color: "#0a84ff", marginTop: 24 },
-  subtitle: { color: "#6b7280", marginTop: 6, textAlign: "center", marginBottom: 18 },
-  segment: { flexDirection: "row", width: "100%", marginBottom: 12, borderRadius: 12, overflow: "hidden" },
-  segBtn: { flex: 1, padding: 12, alignItems: "center", backgroundColor: "#fff" },
-  segBtnActive: { backgroundColor: "#0a84ff" },
+  brand: { fontSize: 40, fontWeight: "800", color: colors.primary, marginTop: 24 },
+  subtitle: { color: colors.textSecondary, marginTop: 6, textAlign: "center", marginBottom: 18 },
+  segment: { flexDirection: "row", width: "100%", marginBottom: 12, borderRadius: radius.md, overflow: "hidden" },
+  segBtn: { flex: 1, padding: 12, alignItems: "center", backgroundColor: colors.surface },
+  segBtnActive: { backgroundColor: colors.primary },
   segText: { color: "#374151", fontWeight: "600" },
-  segTextActive: { color: "#fff" },
-  card: { width: "100%", marginTop: 8, backgroundColor: "#fff", borderRadius: 14, padding: 16, boxShadow: "0 2px 10px rgba(0, 0, 0, 0.05)" },
+  segTextActive: { color: colors.surface },
+  card: { width: "100%", marginTop: 8, backgroundColor: colors.surface, borderRadius: radius.md, padding: 16, ...shadow.sm },
 });

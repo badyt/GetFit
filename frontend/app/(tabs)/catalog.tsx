@@ -1,5 +1,6 @@
 import { View, Text, Pressable, StyleSheet } from "react-native";
 import { useRouter } from "expo-router";
+import { colors, spacing, radius, shadow } from "../../src/theme";
 
 export default function Catalog() {
   const router = useRouter();
@@ -35,47 +36,47 @@ export default function Catalog() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 20,
-    backgroundColor: "#f8fafc",
+    padding: spacing.xl,
+    backgroundColor: colors.background,
   },
   title: {
     fontSize: 28,
     fontWeight: "700",
-    color: "#111827",
-    marginBottom: 8,
+    color: colors.text,
+    marginBottom: spacing.sm,
   },
   subtitle: {
     fontSize: 16,
-    color: "#6b7280",
-    marginBottom: 32,
+    color: colors.textSecondary,
+    marginBottom: spacing.xxxl,
   },
   buttonContainer: {
-    gap: 16,
+    gap: spacing.lg,
   },
   catalogButton: {
-    borderRadius: 16,
-    padding: 24,
+    borderRadius: radius.lg,
+    padding: spacing.xxl,
     alignItems: "center",
-    boxShadow: "0px 4px 12px rgba(0, 0, 0, 0.1)",
+    ...shadow.md,
   },
   foodButton: {
-    backgroundColor: "#dcfce7",
+    backgroundColor: colors.successLight,
   },
   exerciseButton: {
-    backgroundColor: "#dbeafe",
+    backgroundColor: colors.primaryLight,
   },
   buttonIcon: {
     fontSize: 48,
-    marginBottom: 12,
+    marginBottom: spacing.md,
   },
   buttonTitle: {
     fontSize: 22,
     fontWeight: "700",
-    color: "#111827",
-    marginBottom: 6,
+    color: colors.text,
+    marginBottom: spacing.xs,
   },
   buttonSubtitle: {
     fontSize: 14,
-    color: "#6b7280",
+    color: colors.textSecondary,
   },
 });

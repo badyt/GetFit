@@ -3,6 +3,8 @@ import { useRouter } from "expo-router";
 import { useEffect, useState } from "react";
 import useAuthStore from "../src/store/useAuthStore";
 import { BASE_URL } from "../src/constants/api";
+import ScreenHeader from "../src/components/ScreenHeader";
+import { colors, spacing, radius, shadow } from "../src/theme";
 
 const DAYS = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
 
@@ -81,15 +83,7 @@ export default function WorkoutPlan() {
 
   return (
     <View style={styles.container}>
-      <View style={styles.header}>
-        <Pressable style={styles.backButton} onPress={() => router.back()}>
-          <Text style={styles.backArrow}>←</Text>
-        </Pressable>
-        <Text style={styles.title}>Workout Plan</Text>
-        <Text style={styles.subtitle}>
-          {workoutPlan ? workoutPlan.name : "No workout plan assigned"}
-        </Text>
-      </View>
+      <ScreenHeader title="Workout Plan" onBack={() => router.back()} />
 
       <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
         {!workoutPlan ? (
@@ -141,58 +135,33 @@ export default function WorkoutPlan() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#f8fafc",
+    backgroundColor: colors.background,
   },
   centerContainer: {
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: "#f8fafc",
+    backgroundColor: colors.background,
   },
   loadingText: {
-    marginTop: 12,
-    color: "#6b7280",
+    marginTop: spacing.md,
+    color: colors.textSecondary,
     fontSize: 16,
-  },
-  header: {
-    padding: 20,
-    paddingBottom: 12,
-  },
-  backButton: {
-    padding: 8,
-    borderRadius: 8,
-    backgroundColor: "#f3f4f6",
-    alignSelf: "flex-start",
-    marginBottom: 16,
-  },
-  backArrow: {
-    fontSize: 24,
-    color: "#6366f1",
-    fontWeight: "bold",
-  },
-  title: {
-    fontSize: 28,
-    fontWeight: "700",
-    color: "#111827",
-  },
-  subtitle: {
-    fontSize: 16,
-    color: "#6b7280",
-    marginTop: 4,
   },
   scrollView: {
     flex: 1,
   },
   daysContainer: {
-    padding: 20,
-    gap: 12,
+    padding: spacing.xl,
+    gap: spacing.md,
   },
   dayCard: {
-    backgroundColor: "#ffffff",
-    borderRadius: 12,
-    padding: 16,
+    backgroundColor: colors.surface,
+    borderRadius: radius.md,
+    padding: spacing.lg,
     borderWidth: 1,
-    borderColor: "#e5e7eb",
+    borderColor: colors.border,
+    ...shadow.sm,
   },
   dayCardEmpty: {
     opacity: 0.6,
@@ -201,33 +170,33 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    marginBottom: 8,
+    marginBottom: spacing.sm,
   },
   dayName: {
     fontSize: 18,
     fontWeight: "600",
-    color: "#111827",
+    color: colors.text,
   },
   arrowIcon: {
     fontSize: 20,
-    color: "#6366f1",
+    color: colors.primary,
   },
   dayInfo: {
     gap: 4,
   },
   description: {
-    fontSize: 16,
-    color: "#6366f1",
+    fontSize: 15,
+    color: colors.primary,
     fontWeight: "600",
     marginBottom: 4,
   },
   exerciseCount: {
     fontSize: 14,
-    color: "#6b7280",
+    color: colors.textSecondary,
   },
   emptyDayText: {
     fontSize: 14,
-    color: "#9ca3af",
+    color: colors.textTertiary,
     fontStyle: "italic",
   },
   emptyContainer: {
@@ -237,18 +206,18 @@ const styles = StyleSheet.create({
     marginTop: 60,
   },
   emptyIcon: {
-    fontSize: 64,
-    marginBottom: 16,
+    fontSize: 56,
+    marginBottom: spacing.lg,
   },
   emptyTitle: {
     fontSize: 20,
     fontWeight: "700",
-    color: "#111827",
-    marginBottom: 8,
+    color: colors.text,
+    marginBottom: spacing.sm,
   },
   emptyText: {
-    fontSize: 16,
-    color: "#6b7280",
+    fontSize: 14,
+    color: colors.textSecondary,
     textAlign: "center",
   },
 });

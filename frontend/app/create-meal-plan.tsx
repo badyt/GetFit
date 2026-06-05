@@ -4,7 +4,9 @@ import { useState, useEffect, useRef } from "react";
 import useAuthStore from "../src/store/useAuthStore";
 import usePlanStore from "../src/store/usePlanStore";
 import CustomAlert from "../src/components/CustomAlert";
+import ScreenHeader from "../src/components/ScreenHeader";
 import { BASE_URL } from "../src/constants/api";
+import { colors, spacing, radius, shadow } from "../src/theme";
 
 const DAYS = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
 
@@ -270,16 +272,11 @@ export default function CreateMealPlan() {
 
   return (
     <View style={styles.container}>
-      <View style={styles.header}>
-        <Pressable 
-          style={styles.backButton} 
-          onPress={() => router.push(`/trainee-detail?id=${traineeId}&name=${traineeName}`)}
-        >
-          <Text style={styles.backArrow}>←</Text>
-        </Pressable>
-        <Text style={styles.title}>Create Meal Plan</Text>
-        <Text style={styles.subtitle}>{decodeURIComponent(traineeName as string)}</Text>
-      </View>
+      <ScreenHeader
+        title="Create Meal Plan"
+        onBack={() => router.push(`/trainee-detail?id=${traineeId}&name=${traineeName}`)}
+        accent={colors.secondary}
+      />
 
       <View style={styles.planNameContainer}>
         <Text style={styles.label}>Plan Name *</Text>
@@ -415,121 +412,93 @@ export default function CreateMealPlan() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#f8fafc",
-  },
-  header: {
-    padding: 20,
-    paddingBottom: 16,
-    backgroundColor: "#fff",
-    borderBottomWidth: 1,
-    borderBottomColor: "#e5e7eb",
-  },
-  backButton: {
-    padding: 8,
-    borderRadius: 8,
-    backgroundColor: "#f3f4f6",
-    alignSelf: "flex-start",
-    marginBottom: 16,
-  },
-  backArrow: {
-    fontSize: 24,
-    color: "#f59e0b",
-    fontWeight: "bold",
-  },
-  title: {
-    fontSize: 24,
-    fontWeight: "700",
-    color: "#111827",
-  },
-  subtitle: {
-    fontSize: 14,
-    color: "#6b7280",
-    marginTop: 2,
+    backgroundColor: colors.background,
   },
   planNameContainer: {
-    padding: 20,
-    backgroundColor: "#fff",
+    padding: spacing.xl,
+    backgroundColor: colors.surface,
     borderBottomWidth: 1,
-    borderBottomColor: "#e5e7eb",
+    borderBottomColor: colors.border,
   },
   label: {
     fontSize: 14,
     fontWeight: "600",
-    color: "#374151",
-    marginBottom: 8,
+    color: colors.text,
+    marginBottom: spacing.sm,
   },
   input: {
-    backgroundColor: "#f9fafb",
-    borderRadius: 8,
-    padding: 12,
+    backgroundColor: colors.borderLight,
+    borderRadius: radius.sm,
+    padding: spacing.md,
     fontSize: 16,
-    color: "#111827",
+    color: colors.text,
     borderWidth: 1,
-    borderColor: "#e5e7eb",
+    borderColor: colors.border,
   },
   scrollView: {
     flex: 1,
   },
   daysContainer: {
-    padding: 20,
-    gap: 12,
+    padding: spacing.xl,
+    gap: spacing.md,
   },
   dayCard: {
-    backgroundColor: "#fff",
-    borderRadius: 12,
+    backgroundColor: colors.surface,
+    borderRadius: radius.md,
     borderWidth: 1,
-    borderColor: "#e5e7eb",
+    borderColor: colors.border,
     overflow: "hidden",
+    ...shadow.sm,
   },
   dayHeader: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    padding: 16,
+    padding: spacing.lg,
   },
   dayHeaderLeft: {
     flex: 1,
   },
   dayName: {
-    fontSize: 18,
+    fontSize: 17,
     fontWeight: "600",
-    color: "#111827",
+    color: colors.text,
   },
   mealCount: {
     fontSize: 13,
-    color: "#6b7280",
+    color: colors.textSecondary,
     marginTop: 2,
   },
   expandIcon: {
     fontSize: 16,
-    color: "#f59e0b",
+    color: colors.secondary,
   },
   dayContent: {
-    padding: 16,
+    padding: spacing.lg,
     paddingTop: 0,
-    gap: 12,
+    gap: spacing.md,
   },
   mealItem: {
-    backgroundColor: "#f9fafb",
-    borderRadius: 8,
-    padding: 12,
-    gap: 8,
+    backgroundColor: colors.borderLight,
+    borderRadius: radius.sm,
+    padding: spacing.md,
+    gap: spacing.sm,
   },
   savedMealItem: {
-    backgroundColor: "#d1fae5",
-    borderRadius: 8,
-    padding: 12,
+    backgroundColor: colors.successLight,
+    borderRadius: radius.sm,
+    padding: spacing.md,
     borderWidth: 1,
-    borderColor: "#10b981",
+    borderColor: colors.success,
   },
   savedMealHeader: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    marginBottom: 8,
+    marginBottom: spacing.sm,
   },
   savedFoodName: {
-    fontSize: 16,
+    fontSize: 15,
     fontWeight: "600",
     color: "#065f46",
     flex: 1,
@@ -538,7 +507,7 @@ const styles = StyleSheet.create({
     gap: 4,
   },
   savedDetailText: {
-    fontSize: 14,
+    fontSize: 13,
     color: "#047857",
   },
   mealHeader: {
@@ -547,9 +516,9 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   foodName: {
-    fontSize: 16,
+    fontSize: 15,
     fontWeight: "600",
-    color: "#111827",
+    color: colors.text,
     flex: 1,
   },
   removeButton: {
@@ -557,40 +526,40 @@ const styles = StyleSheet.create({
   },
   removeText: {
     fontSize: 18,
-    color: "#ef4444",
+    color: colors.danger,
   },
   mealInput: {
-    backgroundColor: "#fff",
-    borderRadius: 6,
-    padding: 8,
+    backgroundColor: colors.surface,
+    borderRadius: radius.sm,
+    padding: spacing.sm,
     fontSize: 14,
-    color: "#111827",
+    color: colors.text,
     borderWidth: 1,
-    borderColor: "#e5e7eb",
+    borderColor: colors.border,
   },
   quantityRow: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 8,
+    gap: spacing.sm,
   },
   quantityLabel: {
     fontSize: 14,
-    color: "#6b7280",
+    color: colors.textSecondary,
   },
   quantityInput: {
-    backgroundColor: "#fff",
-    borderRadius: 6,
-    padding: 8,
+    backgroundColor: colors.surface,
+    borderRadius: radius.sm,
+    padding: spacing.sm,
     fontSize: 14,
-    color: "#111827",
+    color: colors.text,
     borderWidth: 1,
-    borderColor: "#e5e7eb",
+    borderColor: colors.border,
     flex: 1,
   },
   addButton: {
-    backgroundColor: "#fef3c7",
-    borderRadius: 8,
-    padding: 12,
+    backgroundColor: colors.secondaryLight,
+    borderRadius: radius.sm,
+    padding: spacing.md,
     alignItems: "center",
   },
   addButtonText: {
@@ -599,39 +568,39 @@ const styles = StyleSheet.create({
     fontWeight: "600",
   },
   pendingFoodCard: {
-    backgroundColor: "#fef3c7",
-    borderRadius: 12,
-    padding: 16,
+    backgroundColor: colors.secondaryLight,
+    borderRadius: radius.md,
+    padding: spacing.lg,
     borderWidth: 2,
-    borderColor: "#f59e0b",
-    marginBottom: 12,
+    borderColor: colors.secondary,
+    marginBottom: spacing.md,
   },
   pendingHeader: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    marginBottom: 12,
+    marginBottom: spacing.md,
   },
   timeRow: {
-    marginBottom: 12,
+    marginBottom: spacing.md,
   },
   timeLabel: {
     fontSize: 14,
     fontWeight: "600",
     color: "#92400e",
-    marginBottom: 6,
+    marginBottom: spacing.sm,
   },
   timeInput: {
-    backgroundColor: "#fff",
-    borderRadius: 6,
-    padding: 10,
+    backgroundColor: colors.surface,
+    borderRadius: radius.sm,
+    padding: spacing.md,
     fontSize: 14,
-    color: "#111827",
+    color: colors.text,
     borderWidth: 1,
-    borderColor: "#f59e0b",
+    borderColor: colors.secondary,
   },
   pendingTitle: {
-    fontSize: 16,
+    fontSize: 15,
     fontWeight: "600",
     color: "#92400e",
   },
@@ -644,34 +613,34 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
   },
   saveFoodButton: {
-    backgroundColor: "#f59e0b",
-    borderRadius: 8,
-    padding: 12,
+    backgroundColor: colors.secondary,
+    borderRadius: radius.sm,
+    padding: spacing.md,
     alignItems: "center",
-    marginTop: 8,
+    marginTop: spacing.sm,
   },
   saveFoodButtonText: {
-    color: "#fff",
-    fontSize: 16,
+    color: colors.surface,
+    fontSize: 15,
     fontWeight: "600",
   },
   footer: {
-    padding: 20,
-    backgroundColor: "#fff",
+    padding: spacing.xl,
+    backgroundColor: colors.surface,
     borderTopWidth: 1,
-    borderTopColor: "#e5e7eb",
+    borderTopColor: colors.border,
   },
   saveButton: {
-    backgroundColor: "#f59e0b",
-    borderRadius: 12,
-    padding: 16,
+    backgroundColor: colors.secondary,
+    borderRadius: radius.md,
+    padding: spacing.lg,
     alignItems: "center",
   },
   saveButtonDisabled: {
     opacity: 0.6,
   },
   saveButtonText: {
-    color: "#fff",
+    color: colors.surface,
     fontSize: 16,
     fontWeight: "700",
   },

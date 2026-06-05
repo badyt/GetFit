@@ -14,6 +14,8 @@ import { useRouter } from "expo-router";
 import useAuthStore from "../src/store/useAuthStore";
 import { HISTORY_URL } from "../src/constants/api";
 import CustomAlert from "../src/components/CustomAlert";
+import ScreenHeader from "../src/components/ScreenHeader";
+import { colors, spacing, radius, shadow } from "../src/theme";
 
 export default function RecordDay() {
   const router = useRouter();
@@ -301,19 +303,9 @@ export default function RecordDay() {
   };
 
   return (
-    <ScrollView style={styles.container}>
-      <View style={styles.header}>
-        <Pressable 
-          onPress={() => router.back()} 
-          style={({ pressed }) => [
-            styles.backButton,
-            pressed && styles.backButtonPressed
-          ]}
-        >
-          <Text style={styles.backText}>← Back</Text>
-        </Pressable>
-        <Text style={styles.title}>Record Measurements</Text>
-      </View>
+    <View style={styles.outerContainer}>
+      <ScreenHeader title="Record Measurements" onBack={() => router.back()} accent={colors.info} />
+      <ScrollView style={styles.container}>
 
       {/* Date Picker */}
       <View style={styles.dateContainer}>
@@ -541,132 +533,92 @@ export default function RecordDay() {
         message={alert.message}
         onClose={() => setAlert({ ...alert, visible: false })}
       />
-    </ScrollView>
+      </ScrollView>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
+  outerContainer: {
+    flex: 1,
+    backgroundColor: colors.background,
+  },
   container: {
     flex: 1,
-    backgroundColor: "#f8fafc",
-  },
-  header: {
-    padding: 20,
-    paddingTop: Platform.OS === "ios" ? 60 : 40,
-    backgroundColor: "#fff",
-    borderBottomWidth: 1,
-    borderBottomColor: "#e5e7eb",
-  },
-  backButton: {
-    marginBottom: 12,
-    alignSelf: "flex-start",
-    paddingVertical: 8,
-    paddingHorizontal: 16,
-    backgroundColor: "#eff6ff",
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: "#bfdbfe",
-  },
-  backButtonPressed: {
-    backgroundColor: "#dbeafe",
-    borderColor: "#93c5fd",
-  },
-  backText: {
-    fontSize: 16,
-    color: "#3b82f6",
-    fontWeight: "600",
-  },
-  title: {
-    fontSize: 28,
-    fontWeight: "700",
-    color: "#111827",
+    backgroundColor: colors.background,
   },
   dateContainer: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    padding: 20,
-    backgroundColor: "#fff",
-    marginVertical: 16,
-    marginHorizontal: 20,
-    borderRadius: 12,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
-    shadowRadius: 8,
-    elevation: 2,
+    padding: spacing.xl,
+    backgroundColor: colors.surface,
+    marginVertical: spacing.lg,
+    marginHorizontal: spacing.xl,
+    borderRadius: radius.md,
+    ...shadow.sm,
   },
   dateButton: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
-    backgroundColor: "#3b82f6",
+    width: 44,
+    height: 44,
+    borderRadius: radius.full,
+    backgroundColor: colors.info,
     alignItems: "center",
     justifyContent: "center",
-    shadowColor: "#3b82f6",
-    shadowOffset: { width: 0, height: 3 },
-    shadowOpacity: 0.4,
-    shadowRadius: 6,
-    elevation: 5,
-    borderWidth: 1,
-    borderColor: "#2563eb",
   },
   dateButtonPressed: {
-    backgroundColor: "#2563eb",
+    opacity: 0.8,
     transform: [{ scale: 0.95 }],
   },
   dateButtonDisabled: {
-    backgroundColor: "#e5e7eb",
-    shadowColor: "#000",
-    shadowOpacity: 0.1,
-    borderColor: "#d1d5db",
+    backgroundColor: colors.border,
   },
   dateButtonText: {
-    fontSize: 22,
-    color: "#fff",
+    fontSize: 20,
+    color: colors.surface,
     fontWeight: "700",
   },
   dateButtonTextDisabled: {
-    color: "#9ca3af",
+    color: colors.textTertiary,
   },
   dateDisplay: {
     flex: 1,
     alignItems: "center",
     justifyContent: "center",
-    paddingVertical: 8,
+    paddingVertical: spacing.sm,
   },
   dateText: {
     fontSize: 18,
     fontWeight: "600",
-    color: "#111827",
+    color: colors.text,
     marginBottom: 4,
   },
   tapToSelect: {
     fontSize: 11,
-    color: "#3b82f6",
+    color: colors.info,
     marginTop: 2,
   },
   todayBadge: {
     fontSize: 12,
-    color: "#3b82f6",
+    color: colors.info,
     fontWeight: "600",
-    backgroundColor: "#dbeafe",
-    paddingHorizontal: 8,
+    backgroundColor: '#dbeafe',
+    paddingHorizontal: spacing.sm,
     paddingVertical: 2,
-    borderRadius: 8,
+    borderRadius: radius.full,
   },
   todayButton: {
-    marginTop: 8,
+    marginTop: spacing.sm,
     paddingVertical: 6,
-    paddingHorizontal: 12,
-    backgroundColor: "#dbeafe",
-    borderRadius: 6,
+    paddingHorizontal: spacing.md,
+    backgroundColor: '#dbeafe',
+    borderRadius: radius.sm,
     borderWidth: 1,
-    borderColor: "#93c5fd",
+    borderColor: '#93c5fd',
   },
   todayButtonText: {
     fontSize: 12,
-    color: "#3b82f6",
+    color: colors.info,
     fontWeight: "600",
   },
   loadingContainer: {
@@ -674,53 +626,49 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   loadingText: {
-    marginTop: 12,
+    marginTop: spacing.md,
     fontSize: 16,
-    color: "#6b7280",
+    color: colors.textSecondary,
   },
   form: {
-    padding: 20,
+    padding: spacing.xl,
   },
   inputGroup: {
-    marginBottom: 24,
+    marginBottom: spacing.xxl,
   },
   label: {
-    fontSize: 16,
+    fontSize: 15,
     fontWeight: "600",
-    color: "#374151",
-    marginBottom: 8,
+    color: colors.text,
+    marginBottom: spacing.sm,
   },
   input: {
-    backgroundColor: "#fff",
+    backgroundColor: colors.surface,
     borderWidth: 1,
-    borderColor: "#d1d5db",
-    borderRadius: 12,
-    padding: 16,
+    borderColor: colors.border,
+    borderRadius: radius.md,
+    padding: spacing.lg,
     fontSize: 16,
-    color: "#111827",
+    color: colors.text,
   },
   saveButton: {
-    backgroundColor: "#3b82f6",
-    borderRadius: 12,
-    padding: 16,
+    backgroundColor: colors.info,
+    borderRadius: radius.md,
+    padding: spacing.lg,
     alignItems: "center",
-    marginTop: 8,
-    shadowColor: "#3b82f6",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    elevation: 4,
+    marginTop: spacing.sm,
+    ...shadow.md,
   },
   saveButtonPressed: {
-    backgroundColor: "#2563eb",
+    opacity: 0.85,
     transform: [{ scale: 0.98 }],
   },
   saveButtonDisabled: {
-    backgroundColor: "#93c5fd",
+    opacity: 0.6,
   },
   saveButtonText: {
-    color: "#fff",
-    fontSize: 18,
+    color: colors.surface,
+    fontSize: 17,
     fontWeight: "700",
   },
   modalOverlay: {
@@ -739,58 +687,54 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     bottom: 0,
-    backgroundColor: "rgba(0, 0, 0, 0.5)",
+    backgroundColor: colors.overlay,
   },
   datePickerModal: {
-    backgroundColor: "#fff",
-    borderRadius: 16,
-    padding: 20,
+    backgroundColor: colors.surface,
+    borderRadius: radius.lg,
+    padding: spacing.xl,
     width: "90%",
     maxWidth: 400,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 12,
-    elevation: 8,
+    ...shadow.lg,
   },
   modalHeader: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    marginBottom: 20,
+    marginBottom: spacing.xl,
   },
   modalTitle: {
     fontSize: 18,
     fontWeight: "700",
-    color: "#111827",
+    color: colors.text,
   },
   modalNavButton: {
-    fontSize: 28,
+    fontSize: 22,
     fontWeight: "700",
-    color: "#3b82f6",
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    backgroundColor: "#eff6ff",
-    borderRadius: 8,
+    color: colors.info,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.sm,
+    backgroundColor: '#eff6ff',
+    borderRadius: radius.sm,
     overflow: "hidden",
   },
   modalNavButtonDisabled: {
-    color: "#cbd5e1",
-    backgroundColor: "#f9fafb",
+    color: colors.border,
+    backgroundColor: colors.borderLight,
   },
   jumpToTodayButton: {
-    backgroundColor: "#dbeafe",
-    borderRadius: 8,
-    padding: 10,
+    backgroundColor: '#dbeafe',
+    borderRadius: radius.sm,
+    padding: spacing.md,
     alignItems: "center",
-    marginBottom: 16,
+    marginBottom: spacing.lg,
     borderWidth: 1,
-    borderColor: "#93c5fd",
+    borderColor: '#93c5fd',
   },
   jumpToTodayText: {
     fontSize: 14,
     fontWeight: "600",
-    color: "#3b82f6",
+    color: colors.info,
   },
   calendarGrid: {
     flexDirection: "row",
@@ -801,8 +745,8 @@ const styles = StyleSheet.create({
     textAlign: "center",
     fontSize: 12,
     fontWeight: "600",
-    color: "#6b7280",
-    marginBottom: 8,
+    color: colors.textSecondary,
+    marginBottom: spacing.sm,
   },
   calendarDay: {
     width: "14.28%",
@@ -812,33 +756,33 @@ const styles = StyleSheet.create({
     padding: 4,
   },
   calendarDaySelected: {
-    backgroundColor: "#3b82f6",
-    borderRadius: 8,
+    backgroundColor: colors.info,
+    borderRadius: radius.sm,
   },
   calendarDayDisabled: {
     opacity: 0.3,
   },
   calendarDayText: {
     fontSize: 14,
-    color: "#111827",
+    color: colors.text,
   },
   calendarDayTextSelected: {
-    color: "#fff",
+    color: colors.surface,
     fontWeight: "700",
   },
   calendarDayTextDisabled: {
-    color: "#cbd5e1",
+    color: colors.border,
   },
   modalCloseButton: {
-    marginTop: 20,
-    backgroundColor: "#f3f4f6",
-    borderRadius: 8,
-    padding: 12,
+    marginTop: spacing.xl,
+    backgroundColor: colors.borderLight,
+    borderRadius: radius.sm,
+    padding: spacing.md,
     alignItems: "center",
   },
   modalCloseText: {
     fontSize: 16,
     fontWeight: "600",
-    color: "#374151",
+    color: colors.text,
   },
 });

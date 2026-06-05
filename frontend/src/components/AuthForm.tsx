@@ -3,6 +3,7 @@ import { View, Text, TextInput, TouchableOpacity, StyleSheet, ActivityIndicator,
 import { useRouter } from "expo-router";
 import useAuthStore from "../store/useAuthStore";
 import { AUTH_URL } from "../constants/api";
+import { colors, radius } from "../theme";
 
 type Props = {
   mode: "login" | "register";
@@ -268,35 +269,35 @@ const styles = StyleSheet.create({
   container: { width: "100%", paddingHorizontal: 8 },
   fieldGroup: { marginBottom: 14 },
   label: { fontSize: 14, fontWeight: "600", color: "#1f2937", marginBottom: 6 },
-  optional: { fontSize: 12, fontWeight: "400", color: "#9ca3af" },
+  optional: { fontSize: 12, fontWeight: "400", color: colors.textTertiary },
   input: {
     height: 48,
     borderWidth: 1,
-    borderColor: "#e6e6e6",
-    borderRadius: 10,
+    borderColor: colors.border,
+    borderRadius: radius.sm,
     paddingHorizontal: 12,
-    backgroundColor: "#fff",
+    backgroundColor: colors.surface,
     fontSize: 16,
     color: "#1f2937",
   },
-  submit: { height: 48, backgroundColor: "#0a84ff", borderRadius: 10, alignItems: "center", justifyContent: "center", marginTop: 6 },
-  submitText: { color: "#fff", fontWeight: "600" },
+  submit: { height: 48, backgroundColor: colors.primary, borderRadius: radius.sm, alignItems: "center", justifyContent: "center", marginTop: 6 },
+  submitText: { color: colors.surface, fontWeight: "600" },
   error: { color: "#b00020", marginBottom: 6, textAlign: "center" },
   successContainer: { marginBottom: 12, alignItems: "center" },
-  success: { color: "#059669", marginBottom: 8, textAlign: "center", fontSize: 14, lineHeight: 20 },
-  verifyLink: { color: "#0a84ff", fontSize: 15, fontWeight: "600", textDecorationLine: "underline" },
+  success: { color: colors.success, marginBottom: 8, textAlign: "center", fontSize: 14, lineHeight: 20 },
+  verifyLink: { color: colors.primary, fontSize: 15, fontWeight: "600", textDecorationLine: "underline" },
   verifyHeader: { marginBottom: 20, alignItems: "center" },
   verifyTitle: { fontSize: 20, fontWeight: "700", color: "#1f2937", marginBottom: 8 },
-  verifySubtitle: { fontSize: 14, color: "#6b7280", textAlign: "center", lineHeight: 20 },
-  resendButton: { 
-    marginTop: 12, 
-    paddingVertical: 12, 
+  verifySubtitle: { fontSize: 14, color: colors.textSecondary, textAlign: "center", lineHeight: 20 },
+  resendButton: {
+    marginTop: 12,
+    paddingVertical: 12,
     alignItems: "center",
-    borderRadius: 10,
+    borderRadius: radius.sm,
     borderWidth: 1,
-    borderColor: "#0a84ff",
+    borderColor: colors.primary,
   },
-  resendText: { color: "#0a84ff", fontWeight: "600", fontSize: 15 },
+  resendText: { color: colors.primary, fontWeight: "600", fontSize: 15 },
   backButton: { marginTop: 16, paddingVertical: 8, alignItems: "center" },
-  backText: { color: "#6b7280", fontSize: 14 },
+  backText: { color: colors.textSecondary, fontSize: 14 },
 });

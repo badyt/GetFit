@@ -3,6 +3,7 @@ import { View, Text, Pressable, StyleSheet, ActivityIndicator, ScrollView, Image
 import { useRouter } from "expo-router";
 import useAuthStore from "../../src/store/useAuthStore";
 import { BASE_URL, SERVER_BASE } from "../../src/constants/api";
+import { colors, spacing, radius, shadow } from "../../src/theme";
 
 type Trainee = {
   id: string;
@@ -131,8 +132,8 @@ export default function Trainees() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 20,
-    backgroundColor: "#f8fafc",
+    padding: spacing.xl,
+    backgroundColor: colors.background,
   },
   headerRow: {
     flexDirection: "row",
@@ -142,63 +143,60 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 24,
     fontWeight: "700",
-    color: "#111827",
+    color: colors.text,
   },
   subtitle: {
-    marginTop: 6,
-    marginBottom: 16,
-    color: "#6b7280",
+    marginTop: spacing.xs,
+    marginBottom: spacing.lg,
+    color: colors.textSecondary,
   },
   refreshButton: {
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    borderRadius: 8,
-    backgroundColor: "#eef2ff",
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.sm,
+    borderRadius: radius.sm,
+    backgroundColor: colors.primaryLight,
   },
   refreshText: {
-    color: "#3730a3",
+    color: colors.primary,
     fontWeight: "600",
   },
   center: {
-    paddingVertical: 20,
+    paddingVertical: spacing.xl,
   },
   list: {
-    paddingBottom: 24,
+    paddingBottom: spacing.xxl,
   },
   card: {
-    backgroundColor: "#fff",
-    borderRadius: 14,
-    padding: 16,
-    marginBottom: 12,
-    shadowColor: "#000",
-    shadowOpacity: 0.06,
-    shadowRadius: 8,
-    elevation: 2,
+    backgroundColor: colors.surface,
+    borderRadius: radius.md,
+    padding: spacing.lg,
+    marginBottom: spacing.md,
     borderWidth: 1,
-    borderColor: "#e5e7eb",
+    borderColor: colors.border,
+    ...shadow.sm,
   },
   cardHeader: {
     flexDirection: "row",
     alignItems: "center",
-    marginBottom: 12,
+    marginBottom: spacing.md,
   },
   avatar: {
     width: 48,
     height: 48,
     borderRadius: 24,
-    backgroundColor: "#6366f1",
+    backgroundColor: colors.primary,
     alignItems: "center",
     justifyContent: "center",
-    marginRight: 12,
+    marginRight: spacing.md,
   },
   avatarImage: {
     width: 48,
     height: 48,
     borderRadius: 24,
-    marginRight: 12,
+    marginRight: spacing.md,
   },
   avatarText: {
-    color: "#fff",
+    color: colors.surface,
     fontSize: 20,
     fontWeight: "700",
   },
@@ -208,51 +206,51 @@ const styles = StyleSheet.create({
   name: {
     fontSize: 18,
     fontWeight: "700",
-    color: "#111827",
+    color: colors.text,
     marginBottom: 2,
   },
   email: {
     fontSize: 14,
-    color: "#6b7280",
+    color: colors.textSecondary,
   },
   arrowIcon: {
     fontSize: 20,
-    color: "#6366f1",
+    color: colors.primary,
   },
   cardFooter: {
-    gap: 8,
+    gap: spacing.sm,
   },
   infoItem: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 6,
+    gap: spacing.xs,
   },
   infoIcon: {
     fontSize: 14,
   },
   infoText: {
     fontSize: 13,
-    color: "#6b7280",
+    color: colors.textSecondary,
   },
   error: {
-    color: "#b00020",
-    marginBottom: 12,
+    color: colors.danger,
+    marginBottom: spacing.md,
   },
   emptyCard: {
-    backgroundColor: "#fff",
-    borderRadius: 14,
-    padding: 16,
-    marginBottom: 12,
+    backgroundColor: colors.surface,
+    borderRadius: radius.md,
+    padding: spacing.lg,
+    marginBottom: spacing.md,
     borderWidth: 1,
-    borderColor: "#e5e7eb",
+    borderColor: colors.border,
   },
   emptyTitle: {
     fontSize: 16,
     fontWeight: "700",
-    color: "#111827",
+    color: colors.text,
   },
   emptyText: {
     marginTop: 4,
-    color: "#6b7280",
+    color: colors.textSecondary,
   },
 });

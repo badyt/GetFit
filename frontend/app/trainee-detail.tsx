@@ -5,7 +5,9 @@ import useAuthStore from "../src/store/useAuthStore";
 import usePlanStore from "../src/store/usePlanStore";
 import ConfirmDialog from "../src/components/ConfirmDialog";
 import CustomAlert from "../src/components/CustomAlert";
+import ScreenHeader from "../src/components/ScreenHeader";
 import { BASE_URL, SERVER_BASE } from "../src/constants/api";
+import { colors, spacing, radius, shadow } from "../src/theme";
 
 type PlanSummary = {
   mealPlan: {
@@ -220,29 +222,22 @@ export default function TraineeDetail() {
 
   return (
     <View style={styles.container}>
-      <View style={styles.header}>
-        <Pressable style={styles.backButton} onPress={() => router.push('/(tabs)/trainees')}>
-          <Text style={styles.backArrow}>←</Text>
-        </Pressable>
-        <View style={styles.traineeHeader}>
+      <ScreenHeader title={traineeName} onBack={() => router.push('/(tabs)/trainees')} />
+
+      <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
+        <View style={styles.profileRow}>
           {traineeProfilePicture ? (
-            <Image
-              source={{ uri: `${SERVER_BASE}${traineeProfilePicture}` }}
-              style={styles.avatarImage}
-            />
+            <Image source={{ uri: `${SERVER_BASE}${traineeProfilePicture}` }} style={styles.avatarImage} />
           ) : (
             <View style={styles.avatar}>
               <Text style={styles.avatarText}>{traineeName.charAt(0).toUpperCase()}</Text>
             </View>
           )}
           <View>
-            <Text style={styles.title}>{traineeName}</Text>
-            <Text style={styles.subtitle}>Manage Plans</Text>
+            <Text style={styles.profileName}>{traineeName}</Text>
+            <Text style={styles.profileSubtitle}>Manage Plans</Text>
           </View>
         </View>
-      </View>
-
-      <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
         <View style={styles.plansContainer}>
           {/* Meal Plan Card */}
           <View style={styles.planCard}>
@@ -278,7 +273,7 @@ export default function TraineeDetail() {
                     style={[styles.actionButton, styles.deleteButton]}
                     onPress={() => setDeleteDialog({ visible: true, type: "meal" })}
                   >
-                    <Text style={styles.deleteButtonText}>🗑️</Text>
+                    <Text style={styles.deleteButtonText}>Delete</Text>
                   </Pressable>
                 </>
               ) : (
@@ -331,7 +326,7 @@ export default function TraineeDetail() {
                     style={[styles.actionButton, styles.deleteButton]}
                     onPress={() => setDeleteDialog({ visible: true, type: "workout" })}
                   >
-                    <Text style={styles.deleteButtonText}>🗑️</Text>
+                    <Text style={styles.deleteButtonText}>Delete</Text>
                   </Pressable>
                 </>
               ) : (
@@ -374,7 +369,7 @@ export default function TraineeDetail() {
             </View>
           </View>
         </View>
-      </ScrollView>
+        </ScrollView>
 
       <ConfirmDialog
         visible={deleteDialog.visible}
@@ -400,147 +395,136 @@ export default function TraineeDetail() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#f8fafc",
+    backgroundColor: colors.background,
   },
   centerContainer: {
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: "#f8fafc",
+    backgroundColor: colors.background,
   },
   loadingText: {
-    marginTop: 12,
-    color: "#6b7280",
+    marginTop: spacing.md,
+    color: colors.textSecondary,
     fontSize: 16,
   },
-  header: {
-    padding: 20,
-    paddingBottom: 16,
-    backgroundColor: "#fff",
-    borderBottomWidth: 1,
-    borderBottomColor: "#e5e7eb",
-  },
-  backButton: {
-    padding: 8,
-    borderRadius: 8,
-    backgroundColor: "#f3f4f6",
-    alignSelf: "flex-start",
-    marginBottom: 16,
-  },
-  backArrow: {
-    fontSize: 24,
-    color: "#6366f1",
-    fontWeight: "bold",
-  },
-  traineeHeader: {
+  profileRow: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 12,
+    gap: spacing.md,
+    paddingHorizontal: spacing.xl,
+    paddingVertical: spacing.lg,
+    backgroundColor: colors.surface,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.border,
   },
   avatar: {
-    width: 56,
-    height: 56,
-    borderRadius: 28,
-    backgroundColor: "#6366f1",
+    width: 52,
+    height: 52,
+    borderRadius: radius.full,
+    backgroundColor: colors.primary,
     alignItems: "center",
     justifyContent: "center",
   },
   avatarImage: {
-    width: 56,
-    height: 56,
-    borderRadius: 28,
+    width: 52,
+    height: 52,
+    borderRadius: radius.full,
   },
   avatarText: {
-    color: "#fff",
-    fontSize: 24,
+    color: colors.surface,
+    fontSize: 22,
     fontWeight: "700",
   },
-  title: {
-    fontSize: 24,
+  profileName: {
+    fontSize: 18,
     fontWeight: "700",
-    color: "#111827",
+    color: colors.text,
   },
-  subtitle: {
-    fontSize: 14,
-    color: "#6b7280",
+  profileSubtitle: {
+    fontSize: 13,
+    color: colors.textSecondary,
     marginTop: 2,
   },
   scrollView: {
     flex: 1,
   },
   plansContainer: {
-    padding: 20,
-    gap: 16,
+    padding: spacing.xl,
+    gap: spacing.lg,
   },
   planCard: {
-    backgroundColor: "#fff",
-    borderRadius: 16,
-    padding: 20,
+    backgroundColor: colors.surface,
+    borderRadius: radius.md,
+    padding: spacing.xl,
     borderWidth: 1,
-    borderColor: "#e5e7eb",
+    borderColor: colors.border,
+    ...shadow.sm,
   },
   planHeader: {
     flexDirection: "row",
     alignItems: "center",
-    marginBottom: 16,
-    gap: 12,
+    marginBottom: spacing.lg,
+    gap: spacing.md,
   },
   planIcon: {
-    fontSize: 32,
+    fontSize: 28,
   },
   planHeaderInfo: {
     flex: 1,
   },
   planTitle: {
-    fontSize: 20,
+    fontSize: 18,
     fontWeight: "700",
-    color: "#111827",
+    color: colors.text,
   },
   planSubtitle: {
-    fontSize: 14,
-    color: "#6b7280",
+    fontSize: 13,
+    color: colors.textSecondary,
     marginTop: 2,
   },
   planSubtitleEmpty: {
-    fontSize: 14,
-    color: "#9ca3af",
+    fontSize: 13,
+    color: colors.textTertiary,
     fontStyle: "italic",
     marginTop: 2,
   },
   buttonRow: {
     flexDirection: "row",
-    gap: 8,
+    gap: spacing.sm,
   },
   actionButton: {
     flex: 1,
-    paddingVertical: 12,
-    paddingHorizontal: 16,
-    borderRadius: 10,
+    paddingVertical: spacing.md,
+    paddingHorizontal: spacing.lg,
+    borderRadius: radius.sm,
     alignItems: "center",
     justifyContent: "center",
   },
   createButton: {
-    backgroundColor: "#6366f1",
+    backgroundColor: colors.primary,
   },
   createButtonText: {
-    color: "#fff",
-    fontSize: 16,
+    color: colors.surface,
+    fontSize: 15,
     fontWeight: "600",
   },
   editButton: {
-    backgroundColor: "#eef2ff",
+    backgroundColor: colors.primaryLight,
     flex: 2,
   },
   editButtonText: {
-    color: "#4f46e5",
-    fontSize: 16,
+    color: colors.primary,
+    fontSize: 15,
     fontWeight: "600",
   },
   deleteButton: {
-    backgroundColor: "#fee2e2",
-    flex: 0.5,
+    backgroundColor: colors.dangerLight,
+    flex: 0.6,
   },
   deleteButtonText: {
-    fontSize: 18,
+    color: colors.danger,
+    fontSize: 15,
+    fontWeight: "700",
   },
 });

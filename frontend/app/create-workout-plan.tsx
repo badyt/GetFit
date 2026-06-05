@@ -4,7 +4,9 @@ import { useState, useEffect, useRef } from "react";
 import useAuthStore from "../src/store/useAuthStore";
 import usePlanStore from "../src/store/usePlanStore";
 import CustomAlert from "../src/components/CustomAlert";
+import ScreenHeader from "../src/components/ScreenHeader";
 import { BASE_URL } from "../src/constants/api";
+import { colors, spacing, radius, shadow } from "../src/theme";
 
 const DAYS = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
 
@@ -226,16 +228,10 @@ export default function CreateWorkoutPlan() {
 
   return (
     <View style={styles.container}>
-      <View style={styles.header}>
-        <Pressable 
-          style={styles.backButton} 
-          onPress={() => router.push(`/trainee-detail?id=${traineeId}&name=${traineeName}`)}
-        >
-          <Text style={styles.backArrow}>←</Text>
-        </Pressable>
-        <Text style={styles.title}>Create Workout Plan</Text>
-        <Text style={styles.subtitle}>{decodeURIComponent(traineeName as string)}</Text>
-      </View>
+      <ScreenHeader
+        title="Create Workout Plan"
+        onBack={() => router.push(`/trainee-detail?id=${traineeId}&name=${traineeName}`)}
+      />
       <View style={styles.planNameContainer}>
         <Text style={styles.label}>Plan Name *</Text>
         <TextInput
@@ -396,136 +392,109 @@ export default function CreateWorkoutPlan() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#f8fafc",
-  },
-  header: {
-    padding: 20,
-    paddingBottom: 16,
-    backgroundColor: "#fff",
-    borderBottomWidth: 1,
-    borderBottomColor: "#e5e7eb",
-  },
-  backButton: {
-    padding: 8,
-    borderRadius: 8,
-    backgroundColor: "#f3f4f6",
-    alignSelf: "flex-start",
-    marginBottom: 16,
-  },
-  backArrow: {
-    fontSize: 24,
-    color: "#6366f1",
-    fontWeight: "bold",
-  },
-  title: {
-    fontSize: 24,
-    fontWeight: "700",
-    color: "#111827",
-  },
-  subtitle: {
-    fontSize: 14,
-    color: "#6b7280",
-    marginTop: 2,
+    backgroundColor: colors.background,
   },
   planNameContainer: {
-    padding: 20,
-    backgroundColor: "#fff",
+    padding: spacing.xl,
+    backgroundColor: colors.surface,
     borderBottomWidth: 1,
-    borderBottomColor: "#e5e7eb",
+    borderBottomColor: colors.border,
   },
   label: {
     fontSize: 14,
     fontWeight: "600",
-    color: "#374151",
-    marginBottom: 8,
+    color: colors.text,
+    marginBottom: spacing.sm,
   },
   input: {
-    backgroundColor: "#f9fafb",
-    borderRadius: 8,
-    padding: 12,
+    backgroundColor: colors.borderLight,
+    borderRadius: radius.sm,
+    padding: spacing.md,
     fontSize: 16,
-    color: "#111827",
+    color: colors.text,
     borderWidth: 1,
-    borderColor: "#e5e7eb",
+    borderColor: colors.border,
   },
   scrollView: {
     flex: 1,
   },
   daysContainer: {
-    padding: 20,
+    padding: spacing.xl,
   },
   dayCard: {
-    backgroundColor: "#fff",
-    borderRadius: 12,
+    backgroundColor: colors.surface,
+    borderRadius: radius.md,
     borderWidth: 1,
-    borderColor: "#e5e7eb",
+    borderColor: colors.border,
     overflow: "hidden",
-    marginBottom: 12,
+    marginBottom: spacing.md,
+    ...shadow.sm,
   },
   dayHeader: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    padding: 16,
+    padding: spacing.lg,
   },
   dayHeaderLeft: {
     flex: 1,
   },
   dayName: {
-    fontSize: 18,
+    fontSize: 17,
     fontWeight: "600",
-    color: "#111827",
+    color: colors.text,
   },
   dayDescription: {
-    fontSize: 14,
-    color: "#6366f1",
+    fontSize: 13,
+    color: colors.primary,
     fontWeight: "600",
     marginTop: 2,
   },
   exerciseCount: {
     fontSize: 13,
-    color: "#6b7280",
+    color: colors.textSecondary,
     marginTop: 2,
   },
   expandIcon: {
     fontSize: 16,
-    color: "#6366f1",
+    color: colors.primary,
   },
   dayContent: {
-    padding: 16,
+    padding: spacing.lg,
     paddingTop: 0,
   },
   descriptionInput: {
-    backgroundColor: "#f9fafb",
-    borderRadius: 8,
-    padding: 12,
+    backgroundColor: colors.borderLight,
+    borderRadius: radius.sm,
+    padding: spacing.md,
     fontSize: 14,
-    color: "#111827",
+    color: colors.text,
     borderWidth: 1,
-    borderColor: "#e5e7eb",
-    marginBottom: 12,
+    borderColor: colors.border,
+    marginBottom: spacing.md,
   },
   exerciseItem: {
-    backgroundColor: "#f9fafb",
-    borderRadius: 8,
-    padding: 12,
-    marginBottom: 12,
+    backgroundColor: colors.borderLight,
+    borderRadius: radius.sm,
+    padding: spacing.md,
+    marginBottom: spacing.md,
   },
   savedExerciseItem: {
-    backgroundColor: "#dbeafe",
-    borderRadius: 8,
-    padding: 12,
+    backgroundColor: colors.primaryLight,
+    borderRadius: radius.sm,
+    padding: spacing.md,
     borderWidth: 1,
-    borderColor: "#3b82f6",
+    borderColor: colors.primary,
+    marginBottom: spacing.md,
   },
   savedExerciseHeader: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    marginBottom: 8,
+    marginBottom: spacing.sm,
   },
   savedExerciseName: {
-    fontSize: 16,
+    fontSize: 15,
     fontWeight: "600",
     color: "#1e3a8a",
     flex: 1,
@@ -534,7 +503,7 @@ const styles = StyleSheet.create({
     marginTop: 4,
   },
   savedDetailText: {
-    fontSize: 14,
+    fontSize: 13,
     color: "#1e40af",
   },
   exerciseHeader: {
@@ -543,9 +512,9 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   exerciseName: {
-    fontSize: 16,
+    fontSize: 15,
     fontWeight: "600",
-    color: "#111827",
+    color: colors.text,
     flex: 1,
   },
   removeButton: {
@@ -553,57 +522,57 @@ const styles = StyleSheet.create({
   },
   removeText: {
     fontSize: 18,
-    color: "#ef4444",
+    color: colors.danger,
   },
   exerciseInputsRow: {
     flexDirection: "row",
   },
   inputGroup: {
     flex: 1,
-    marginRight: 8,
+    marginRight: spacing.sm,
   },
   inputLabel: {
     fontSize: 11,
-    color: "#6b7280",
+    color: colors.textSecondary,
     marginBottom: 4,
   },
   smallInput: {
-    backgroundColor: "#fff",
-    borderRadius: 6,
-    padding: 8,
+    backgroundColor: colors.surface,
+    borderRadius: radius.sm,
+    padding: spacing.sm,
     fontSize: 14,
-    color: "#111827",
+    color: colors.text,
     borderWidth: 1,
-    borderColor: "#e5e7eb",
+    borderColor: colors.border,
     textAlign: "center",
   },
   addButton: {
-    backgroundColor: "#ede9fe",
-    borderRadius: 8,
-    padding: 12,
+    backgroundColor: colors.primaryLight,
+    borderRadius: radius.sm,
+    padding: spacing.md,
     alignItems: "center",
   },
   addButtonText: {
-    color: "#7c3aed",
+    color: colors.primary,
     fontSize: 14,
     fontWeight: "600",
   },
   pendingExerciseCard: {
-    backgroundColor: "#dbeafe",
-    borderRadius: 12,
-    padding: 16,
+    backgroundColor: colors.primaryLight,
+    borderRadius: radius.md,
+    padding: spacing.lg,
     borderWidth: 2,
-    borderColor: "#6366f1",
-    marginBottom: 12,
+    borderColor: colors.primary,
+    marginBottom: spacing.md,
   },
   pendingHeader: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    marginBottom: 12,
+    marginBottom: spacing.md,
   },
   pendingTitle: {
-    fontSize: 16,
+    fontSize: 15,
     fontWeight: "600",
     color: "#1e3a8a",
   },
@@ -616,34 +585,34 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
   },
   saveExerciseButton: {
-    backgroundColor: "#6366f1",
-    borderRadius: 8,
-    padding: 12,
+    backgroundColor: colors.primary,
+    borderRadius: radius.sm,
+    padding: spacing.md,
     alignItems: "center",
-    marginTop: 8,
+    marginTop: spacing.sm,
   },
   saveExerciseButtonText: {
-    color: "#fff",
-    fontSize: 16,
+    color: colors.surface,
+    fontSize: 15,
     fontWeight: "600",
   },
   footer: {
-    padding: 20,
-    backgroundColor: "#fff",
+    padding: spacing.xl,
+    backgroundColor: colors.surface,
     borderTopWidth: 1,
-    borderTopColor: "#e5e7eb",
+    borderTopColor: colors.border,
   },
   saveButton: {
-    backgroundColor: "#6366f1",
-    borderRadius: 12,
-    padding: 16,
+    backgroundColor: colors.primary,
+    borderRadius: radius.md,
+    padding: spacing.lg,
     alignItems: "center",
   },
   saveButtonDisabled: {
     opacity: 0.6,
   },
   saveButtonText: {
-    color: "#fff",
+    color: colors.surface,
     fontSize: 16,
     fontWeight: "700",
   },

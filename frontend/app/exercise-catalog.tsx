@@ -3,6 +3,8 @@ import { View, Text, SectionList, StyleSheet, ActivityIndicator, Image, Pressabl
 import { useRouter } from "expo-router";
 import { BASE_URL } from "../src/constants/api";
 import { getExerciseImage } from "../src/utils/imageMapper";
+import ScreenHeader from "../src/components/ScreenHeader";
+import { colors, spacing, radius, shadow } from "../src/theme";
 
 interface Exercise {
   id: string;
@@ -64,16 +66,12 @@ export default function ExerciseCatalog() {
 
   const renderExerciseItem = ({ item }: { item: Exercise }) => {
     const imageSource = getExerciseImage(item.image);
-    
+
     return (
       <View style={styles.exerciseCard}>
         <View style={styles.imageContainer}>
           {imageSource ? (
-            <Image
-              source={imageSource}
-              style={styles.exerciseImage}
-              resizeMode="contain"
-            />
+            <Image source={imageSource} style={styles.exerciseImage} resizeMode="contain" />
           ) : (
             <View style={styles.placeholderImage}>
               <Text style={styles.placeholderText}>💪</Text>
@@ -99,7 +97,7 @@ export default function ExerciseCatalog() {
   if (loading) {
     return (
       <View style={styles.centerContainer}>
-        <ActivityIndicator size="large" color="#0a84ff" />
+        <ActivityIndicator size="large" color={colors.primary} />
         <Text style={styles.loadingText}>Loading exercises...</Text>
       </View>
     );
@@ -120,30 +118,21 @@ export default function ExerciseCatalog() {
   }));
 
   const totalExercises = filteredCategories.reduce((sum, cat) => sum + cat.exercises.length, 0);
-  const allExercises = categories.reduce((sum, cat) => sum + cat.exercises.length, 0);
 
   return (
     <View style={styles.container}>
-      <View style={styles.header}>
-        <View style={styles.topBar}>
-          <Pressable style={styles.backButton} onPress={() => router.back()}>
-            <Text style={styles.backArrow}>←</Text>
-          </Pressable>
-          <View style={styles.searchContainer}>
-            <Text style={styles.searchIcon}>🔍</Text>
-            <TextInput
-              style={styles.searchInput}
-              placeholder="Search exercises..."
-              placeholderTextColor="#9ca3af"
-              value={searchQuery}
-              onChangeText={handleSearch}
-            />
-          </View>
-        </View>
-        <Text style={styles.title}>Exercise Catalog</Text>
-        <Text style={styles.subtitle}>
-          {totalExercises} of {allExercises} exercises in {filteredCategories.length} categories
-        </Text>
+      <ScreenHeader
+        title={`Exercise Catalog (${totalExercises})`}
+        onBack={() => router.back()}
+      />
+      <View style={styles.searchBar}>
+        <TextInput
+          style={styles.searchInput}
+          placeholder="Search exercises..."
+          placeholderTextColor={colors.textTertiary}
+          value={searchQuery}
+          onChangeText={handleSearch}
+        />
       </View>
       <SectionList
         sections={sections}
@@ -161,103 +150,67 @@ export default function ExerciseCatalog() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#f8fafc",
+    backgroundColor: colors.background,
   },
   centerContainer: {
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: "#f8fafc",
+    backgroundColor: colors.background,
   },
   loadingText: {
-    marginTop: 12,
-    color: "#6b7280",
+    marginTop: spacing.md,
+    color: colors.textSecondary,
     fontSize: 16,
   },
   errorText: {
-    color: "#ef4444",
+    color: colors.danger,
     fontSize: 16,
     textAlign: "center",
-    paddingHorizontal: 20,
+    paddingHorizontal: spacing.xl,
   },
-  header: {
-    padding: 20,
-    paddingBottom: 12,
-  },
-  topBar: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 12,
-    marginBottom: 16,
-  },
-  backButton: {
-    padding: 8,
-    borderRadius: 8,
-    backgroundColor: '#f3f4f6',
-  },
-  backArrow: {
-    fontSize: 24,
-    color: '#3b82f6',
-    fontWeight: 'bold',
-  },
-  searchContainer: {
-    flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#f3f4f6',
-    borderRadius: 12,
-    paddingHorizontal: 12,
-    height: 44,
-  },
-  searchIcon: {
-    fontSize: 18,
-    marginRight: 8,
+  searchBar: {
+    paddingHorizontal: spacing.xl,
+    paddingVertical: spacing.md,
+    backgroundColor: colors.surface,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.border,
   },
   searchInput: {
-    flex: 1,
-    fontSize: 16,
-    color: '#111827',
-  },
-  title: {
-    fontSize: 28,
-    fontWeight: "700",
-    color: "#111827",
-  },
-  subtitle: {
-    fontSize: 14,
-    color: "#6b7280",
-    marginTop: 4,
+    height: 44,
+    backgroundColor: colors.borderLight,
+    borderRadius: radius.sm,
+    paddingHorizontal: spacing.md,
+    fontSize: 15,
+    color: colors.text,
   },
   listContent: {
-    padding: 16,
+    padding: spacing.lg,
   },
   categoryHeader: {
-    backgroundColor: "#0a84ff",
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    borderRadius: 12,
-    marginBottom: 12,
-    marginTop: 8,
+    backgroundColor: colors.primary,
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.md,
+    borderRadius: radius.md,
+    marginBottom: spacing.md,
+    marginTop: spacing.sm,
   },
   categoryName: {
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: "700",
-    color: "#fff",
+    color: colors.surface,
   },
   exerciseCard: {
-    backgroundColor: "#fff",
-    borderRadius: 16,
+    backgroundColor: colors.surface,
+    borderRadius: radius.md,
     overflow: "hidden",
-    shadowColor: "#000",
-    shadowOpacity: 0.08,
-    shadowRadius: 12,
-    elevation: 3,
-    marginBottom: 12,
+    ...shadow.md,
+    marginBottom: spacing.md,
   },
   imageContainer: {
     width: "100%",
-    height: 200,
-    backgroundColor: "#f3f4f6",
+    height: 180,
+    backgroundColor: colors.borderLight,
   },
   exerciseImage: {
     width: "100%",
@@ -268,23 +221,23 @@ const styles = StyleSheet.create({
     height: "100%",
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: "#e5e7eb",
+    backgroundColor: colors.border,
   },
   placeholderText: {
-    fontSize: 72,
+    fontSize: 56,
   },
   exerciseInfo: {
-    padding: 16,
+    padding: spacing.lg,
   },
   exerciseName: {
-    fontSize: 20,
+    fontSize: 18,
     fontWeight: "700",
-    color: "#111827",
-    marginBottom: 8,
+    color: colors.text,
+    marginBottom: spacing.sm,
   },
   exerciseDescription: {
     fontSize: 14,
-    color: "#6b7280",
+    color: colors.textSecondary,
     lineHeight: 20,
   },
 });
